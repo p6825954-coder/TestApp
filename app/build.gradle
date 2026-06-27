@@ -1,9 +1,9 @@
 plugins { id 'com.android.application' }
 android {
-    namespace 'com.testapp'
+    namespace 'com.ghostspycontroller'
     compileSdk 30
     defaultConfig {
-        applicationId "com.testapp"
+        applicationId "com.ghostspycontroller"
         minSdk 21
         targetSdk 30
         versionCode 1
@@ -14,5 +14,11 @@ android {
             minifyEnabled false
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
-dependencies {}
+dependencies {
+    // Kosong
+}
