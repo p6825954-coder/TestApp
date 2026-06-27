@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.widget.TextView;
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.net.URISyntaxException;
 
 public class MainActivity extends Activity {
@@ -27,7 +29,25 @@ public class MainActivity extends Activity {
         }
 
         socket.on(Socket.EVENT_CONNECT, args -> {
-            runOnUiThread(() -> statusText.setText("Terhubung!"));
+            runOnUiThread(() -> statusText.setText("Terhubung! Meminta data..."));
+            socket.emit("get_devices"); // Minta daftar perangkat
+        });
+
+        socket.on("devices_list", args -> {
+            try {
+                JSONArray devices = (JSONArray) args[0];
+                StringBuilder sb = new StringBuilder();
+                sb.append("📱 Perangkat Online:\n");
+                for (int i = 0; i < devices.length(); i++) {
+                    JSONObject dev = devices.getJSONObject(i);
+                    sb.append("• ").append(dev.getString("id"))
+                      .append(" - ").append(dev.getString("model"))
+                      .append(" (").append(dev.optString("android", "??")).append(")\n");
+                }
+                runOnUiThread(() -> statusText.setText(sb.toString()));
+            } catch (Exception e) {
+                runOnUiThread(() -> statusText.setText("Error parsing data"));
+            }
         });
 
         socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
