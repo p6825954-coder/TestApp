@@ -1,8 +1,9 @@
 package com.testapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import io.socket.client.IO;
@@ -45,40 +46,47 @@ public class MainActivity extends Activity {
                 runOnUiThread(() -> {
                     deviceContainer.removeAllViews();
                     for (int i = 0; i < devices.length(); i++) {
-                        try {
-                            JSONObject dev = devices.getJSONObject(i);
-                            // Buat item
-                            LinearLayout item = new LinearLayout(MainActivity.this);
-                            item.setOrientation(LinearLayout.VERTICAL);
-                            item.setBackgroundColor(0xFF1a1a1a);
-                            item.setPadding(24, 24, 24, 24);
-                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                                    LinearLayout.LayoutParams.MATCH_PARENT,
-                                    LinearLayout.LayoutParams.WRAP_CONTENT
-                            );
-                            params.setMargins(0, 0, 0, 16);
-                            item.setLayoutParams(params);
+                        JSONObject dev = devices.getJSONObject(i);
+                        // Buat item view yang bisa diklik
+                        LinearLayout item = new LinearLayout(MainActivity.this);
+                        item.setOrientation(LinearLayout.VERTICAL);
+                        item.setBackgroundColor(0xFF1a1a1a);
+                        item.setPadding(24, 24, 24, 24);
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        );
+                        params.setMargins(0, 0, 0, 16);
+                        item.setLayoutParams(params);
 
-                            TextView idView = new TextView(MainActivity.this);
-                            idView.setText("🆔 " + dev.getString("id"));
-                            idView.setTextColor(0xFF00ff41);
-                            idView.setTextSize(16);
+                        String deviceId = dev.getString("id");
+                        TextView idView = new TextView(MainActivity.this);
+                        idView.setText("🆔 " + deviceId);
+                        idView.setTextColor(0xFF00ff41);
+                        idView.setTextSize(16);
 
-                            TextView modelView = new TextView(MainActivity.this);
-                            modelView.setText("📱 " + dev.getString("model") + " | Android " + dev.optString("android", "??"));
-                            modelView.setTextColor(0xFFFFFFFF);
-                            modelView.setTextSize(14);
+                        TextView modelView = new TextView(MainActivity.this);
+                        modelView.setText("📱 " + dev.getString("model") + " | Android " + dev.optString("android", "??"));
+                        modelView.setTextColor(0xFFFFFFFF);
+                        modelView.setTextSize(14);
 
-                            TextView lastView = new TextView(MainActivity.this);
-                            lastView.setText("🕒 " + dev.optString("last_seen", "unknown"));
-                            lastView.setTextColor(0xFFAAAAAA);
-                            lastView.setTextSize(12);
+                        TextView lastView = new TextView(MainActivity.this);
+                        lastView.setText("🕒 " + dev.optString("last_seen", "unknown"));
+                        lastView.setTextColor(0xFFAAAAAA);
+                        lastView.setTextSize(12);
 
-                            item.addView(idView);
-                            item.addView(modelView);
-                            item.addView(lastView);
-                            deviceContainer.addView(item);
-                        } catch (Exception e) {}
+                        item.addView(idView);
+                        item.addView(modelView);
+                        item.addView(lastView);
+
+                        // Klik perangkat -> buka ControlActivity
+                        item.setOnClickListener(v -> {
+                            Intent intent = new Intent(MainActivity.this, ControlActivity.class);
+                            intent.putExtra("deviceId", deviceId);
+                            startActivity(intent);
+                        });
+
+                        deviceContainer.addView(item);
                     }
                     statusText.setText("🟢 ONLINE | " + devices.length() + " perangkat");
                 });

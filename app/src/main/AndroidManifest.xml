@@ -7,7 +7,7 @@
 
     <application
         android:allowBackup="true"
-        android:label="TestApp"
+        android:label="GhostSpy C2"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
@@ -15,5 +15,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ControlActivity" android:exported="false" />
     </application>
 </manifest>
