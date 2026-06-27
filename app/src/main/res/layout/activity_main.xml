@@ -2,14 +2,61 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:background="#fff">
+    android:orientation="vertical"
+    android:background="#0a0a0a"
+    android:padding="16dp">
 
+    <!-- Header -->
+    <TextView
+        android:id="@+id/headerText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="👻 GHOSTSPY C2"
+        android:textColor="#00ff41"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:shadowColor="#00ff41"
+        android:shadowRadius="8"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Status Koneksi -->
     <TextView
         android:id="@+id/statusText"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Loading..."
-        android:textSize="24sp"
-        android:textColor="#000"/>
+        android:text="Menghubungkan..."
+        android:textColor="#aaaaaa"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Judul Daftar -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📱 PERANGKAT TERINFEKSI"
+        android:textColor="#00ff41"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Daftar Perangkat (RecyclerView) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/deviceRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#111111"/>
+
+    <!-- Footer -->
+    <TextView
+        android:id="@+id/footerText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="by JMK48 | Gixss"
+        android:textColor="#555555"
+        android:textSize="11sp"
+        android:gravity="center"
+        android:layout_marginTop="12dp"/>
 </LinearLayout>
