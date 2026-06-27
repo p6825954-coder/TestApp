@@ -22,16 +22,16 @@ public class MainActivity extends Activity {
         try {
             socket = IO.socket("https://ghostspy.bruang.biz.id");
         } catch (URISyntaxException e) {
-            statusText.setText("Error: " + e.getMessage());
+            statusText.setText("Error URL: " + e.getMessage());
             return;
         }
 
         socket.on(Socket.EVENT_CONNECT, args -> {
-            runOnUiThread(() -> statusText.setText("Terhubung ke server!"));
+            runOnUiThread(() -> statusText.setText("Terhubung!"));
         });
 
         socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
-            runOnUiThread(() -> statusText.setText("Gagal konek: " + args[0]));
+            runOnUiThread(() -> statusText.setText("Gagal konek"));
         });
 
         socket.connect();
