@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@drawable/bg_gradient"
+    android:padding="16dp">
+
+    <!-- Top Bar -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center_vertical" android:layout_marginBottom="16dp">
+        <Button android:text="←" android:background="@null" android:textColor="#FFF"/>
+        <TextView android:text="REALME RMX3939 | IP: ... | 22%" android:textColor="#FFF"
+            android:layout_weight="1" android:gravity="center"/>
+        <TextView android:text="2" android:background="@drawable/red_button"
+            android:padding="6dp 14dp" android:textColor="#FFF" android:textSize="12sp"/>
+    </LinearLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1">
+        <LinearLayout android:id="@+id/featureGrid"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+    </ScrollView>
+
+    <!-- Bottom Nav with Active KONTROL -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="64dp"
+        android:background="@drawable/glass_card" android:gravity="center"
+        android:orientation="horizontal">
+        <TextView android:text="BERANDA" android:textColor="#9AA3B2"
+            android:layout_weight="1" android:gravity="center"/>
+        <LinearLayout android:gravity="center" android:layout_weight="1"
+            android:orientation="vertical">
+            <ImageView android:src="@android:drawable/ic_menu_compass"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:background="@drawable/red_button" android:padding="6dp"/>
+            <TextView android:text="KONTROL" android:textColor="#FF1E5A" android:textSize="10sp"/>
+        </LinearLayout>
+        <TextView android:text="PROFIL" android:textColor="#9AA3B2"
+            android:layout_weight="1" android:gravity="center"/>
+    </LinearLayout>
+</LinearLayout>

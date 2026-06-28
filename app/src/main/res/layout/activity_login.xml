@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@drawable/bg_gradient"
+    android:padding="32dp" android:gravity="center">
+
+    <TextView android:text="DEVICE MANAGER" android:textColor="#FFFFFF"
+        android:textSize="32sp" android:textStyle="bold" android:gravity="center"/>
+    <TextView android:text="V1.0" android:textColor="#FF1E5A" android:textSize="18sp"
+        android:gravity="center" android:layout_marginBottom="8dp"/>
+    <TextView android:text="REMOTE MANAGEMENT APK" android:textColor="#9AA3B2"
+        android:textSize="12sp" android:gravity="center" android:layout_marginBottom="40dp"/>
+
+    <ImageView android:layout_width="200dp" android:layout_height="150dp"
+        android:src="@android:drawable/ic_menu_gallery" android:scaleType="fitCenter"
+        android:alpha="0.5" android:layout_marginBottom="40dp"/>
+
+    <TextView android:text="EMAIL ANDA" android:textColor="#9AA3B2"
+        android:textSize="12sp" android:layout_marginBottom="4dp"/>
+    <EditText android:hint="user@example.com" android:textColor="#FFF"
+        android:background="@drawable/glass_card" android:padding="16dp"
+        android:layout_marginBottom="16dp" android:drawableLeft="@android:drawable/ic_dialog_email"/>
+
+    <TextView android:text="KATA SANDI" android:textColor="#9AA3B2"
+        android:textSize="12sp" android:layout_marginBottom="4dp"/>
+    <EditText android:hint="••••••••" android:textColor="#FFF"
+        android:inputType="textPassword"
+        android:background="@drawable/glass_card" android:padding="16dp"
+        android:layout_marginBottom="32dp"/>
+
+    <Button android:text="MASUK" android:textColor="#FFF"
+        android:background="@drawable/red_button" android:layout_width="match_parent"
+        android:layout_height="56dp" android:textSize="18sp" android:textStyle="bold"/>
+
+    <TextView android:text="DAFTAR AKUN BARU" android:textColor="#FFFFFF"
+        android:textSize="12sp" android:gravity="center" android:layout_marginTop="16dp"/>
+</LinearLayout>

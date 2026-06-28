@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@drawable/bg_gradient"
+    android:padding="16dp">
+
+    <!-- Top Bar -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center_vertical" android:layout_marginBottom="16dp">
+        <Button android:text="←" android:background="@null" android:textColor="#FFF"/>
+        <TextView android:text="REALME RMX3939 | IP: ... | 22%" android:textColor="#FFF"
+            android:layout_weight="1" android:gravity="center"/>
+        <TextView android:text="2" android:background="@drawable/red_button"
+            android:padding="6dp 14dp" android:textColor="#FFF" android:textSize="12sp"/>
+    </LinearLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:background="@drawable/neon_border"
+            android:padding="20dp">
+            
+            <LinearLayout android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                <View android:layout_width="10dp" android:layout_height="10dp"
+                    android:background="@drawable/green_dot" android:layout_marginEnd="8dp"/>
+                <TextView android:text="Profil Perangkat" android:textColor="#FFF"
+                    android:textSize="18sp" android:textStyle="bold"/>
+            </LinearLayout>
+            <TextView android:text="REAL-TIME UPDATE ACTIVE" android:textColor="#FF1E5A"
+                android:textSize="11sp" android:layout_marginBottom="20dp"/>
+
+            <TextView android:text="MODEL" android:textColor="#9AA3B2" android:textSize="11sp"/>
+            <TextView android:text="REALME" android:textColor="#FFF" android:textSize="16sp"
+                android:textStyle="bold" android:layout_marginBottom="12dp"/>
+
+            <TextView android:text="BATTERY LEVEL" android:textColor="#9AA3B2" android:textSize="11sp"/>
+            <TextView android:text="22%" android:textColor="#00E676" android:textSize="16sp"
+                android:textStyle="bold" android:layout_marginBottom="12dp"/>
+
+            <TextView android:text="NETWORK TYPE" android:textColor="#9AA3B2" android:textSize="11sp"/>
+            <TextView android:text="WiFi (REALME C56)" android:textColor="#FFC107" android:textSize="14sp"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView android:text="SIM SLOT 1" android:textColor="#9AA3B2" android:textSize="11sp"/>
+            <TextView android:text="TELKOMSEL" android:textColor="#FFF" android:textSize="14sp"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView android:text="SIM SLOT 2" android:textColor="#9AA3B2" android:textSize="11sp"/>
+            <TextView android:text="No SIM Detected" android:textColor="#9AA3B2" android:textSize="14sp"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Anti-uninstall -->
+            <LinearLayout android:background="#1A3A1A" android:padding="16dp"
+                android:gravity="center_vertical">
+                <ImageView android:src="@android:drawable/ic_lock_idle_lock"
+                    android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="12dp"/>
+                <LinearLayout android:orientation="vertical" android:layout_weight="1">
+                    <TextView android:text="ANTI-UNINSTALL ACTIVE" android:textColor="#FFF"
+                        android:textStyle="bold"/>
+                    <TextView android:text="PROTECTED (ON)" android:textColor="#00E676"
+                        android:textSize="14sp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
