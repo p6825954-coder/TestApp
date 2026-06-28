@@ -21,5 +21,6 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".ControlActivity" />
         <activity android:name=".AdminActivity" />
+        <activity android:name=".AccountManageActivity" />
     </application>
 </manifest>
