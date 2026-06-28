@@ -43,7 +43,6 @@ public class MainActivity extends Activity {
         });
 
         socket.on("devices_list", args -> {
-            // Parsing JSON di luar UI thread
             try {
                 JSONArray devices = (JSONArray) args[0];
                 List<String[]> deviceData = new ArrayList<>();
@@ -55,7 +54,6 @@ public class MainActivity extends Activity {
                     String last = dev.optString("last_seen", "unknown");
                     deviceData.add(new String[]{id, model, android, last});
                 }
-                // Kirim data bersih ke UI thread
                 runOnUiThread(() -> {
                     deviceContainer.removeAllViews();
                     for (String[] data : deviceData) {
@@ -64,37 +62,42 @@ public class MainActivity extends Activity {
                         String androidVer = data[2];
                         String lastSeen = data[3];
 
+                        // Item container
                         LinearLayout item = new LinearLayout(MainActivity.this);
                         item.setOrientation(LinearLayout.VERTICAL);
                         item.setBackgroundColor(0xFF1a1a1a);
-                        item.setPadding(24, 24, 24, 24);
+                        item.setPadding(20, 20, 20, 20);
                         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                                 LinearLayout.LayoutParams.MATCH_PARENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT
                         );
-                        params.setMargins(0, 0, 0, 16);
+                        params.setMargins(0, 0, 0, 12);
                         item.setLayoutParams(params);
 
+                        // ID
                         TextView idView = new TextView(MainActivity.this);
                         idView.setText("🆔 " + deviceId);
                         idView.setTextColor(0xFF00ff41);
-                        idView.setTextSize(16);
+                        idView.setTextSize(15);
+                        idView.setTypeface(null, android.graphics.Typeface.BOLD);
 
+                        // Model
                         TextView modelView = new TextView(MainActivity.this);
                         modelView.setText("📱 " + model + " | Android " + androidVer);
                         modelView.setTextColor(0xFFFFFFFF);
-                        modelView.setTextSize(14);
+                        modelView.setTextSize(13);
 
+                        // Last seen
                         TextView lastView = new TextView(MainActivity.this);
                         lastView.setText("🕒 " + lastSeen);
                         lastView.setTextColor(0xFFAAAAAA);
-                        lastView.setTextSize(12);
+                        lastView.setTextSize(11);
 
                         item.addView(idView);
                         item.addView(modelView);
                         item.addView(lastView);
 
-                        // Klik perangkat -> buka ControlActivity
+                        // Klik untuk kontrol
                         item.setOnClickListener(v -> {
                             Intent intent = new Intent(MainActivity.this, ControlActivity.class);
                             intent.putExtra("deviceId", deviceId);

@@ -15,12 +15,10 @@
             android:id="@+id/deviceTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Perangkat: ..."
+            android:text="🎯 Perangkat: ..."
             android:textColor="#00ff41"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginBottom="16dp"/>
-
-        <!-- Tombol-tombol akan ditambahkan dari kode -->
     </LinearLayout>
 </ScrollView>
