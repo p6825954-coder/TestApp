@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -22,7 +21,7 @@ import java.net.URL;
 
 public class LoginActivity extends Activity {
     private EditText emailInput, passwordInput;
-    private Button loginBtn;
+    private Button loginBtn, buyBtn;
     private TextView statusText, titleText;
     private WebView gifWebView;
     private static final String SERVER = "https://ghostspy.bruang.biz.id";
@@ -36,13 +35,14 @@ public class LoginActivity extends Activity {
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
         loginBtn = findViewById(R.id.loginBtn);
+        buyBtn = findViewById(R.id.buyBtn);
         statusText = findViewById(R.id.statusText);
         titleText = findViewById(R.id.titleText);
         gifWebView = findViewById(R.id.gifWebView);
 
         // Animasi berkedip pada judul
         AlphaAnimation anim = new AlphaAnimation(0.4f, 1.0f);
-        anim.setDuration(1000);
+        anim.setDuration(1200);
         anim.setRepeatMode(Animation.REVERSE);
         anim.setRepeatCount(Animation.INFINITE);
         titleText.startAnimation(anim);
@@ -77,6 +77,11 @@ public class LoginActivity extends Activity {
             v.startAnimation(scale);
 
             doLogin();
+        });
+
+        buyBtn.setOnClickListener(v -> {
+            // Bisa diarahkan ke website pembelian atau RegisterActivity
+            Toast.makeText(this, "Fitur beli akun akan segera hadir", Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -143,11 +148,9 @@ public class LoginActivity extends Activity {
                         finish();
                     });
                 } else {
-                    // Login gagal, tampilkan "Anda Belum Jadi Member"
                     runOnUiThread(() -> statusText.setText("❌ Anda Belum Jadi Member"));
                 }
             } catch (Exception e) {
-                // Jika koneksi gagal, bisa juga dianggap belum member
                 runOnUiThread(() -> statusText.setText("❌ Anda Belum Jadi Member"));
             }
         }).start();
