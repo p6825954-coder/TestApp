@@ -4,7 +4,22 @@
     android:layout_height="match_parent"
     android:background="#0B0E17"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="32dp">
+
+    <TextView
+        android:text="SECURE DEVICE"
+        android:textColor="#FFFFFF"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:gravity="center"/>
+
+    <TextView
+        android:text="V5.0"
+        android:textColor="#FF1E5A"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
 
     <Button
         android:id="@+id/loginBtn"
