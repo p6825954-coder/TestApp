@@ -3,6 +3,7 @@ package com.testapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.widget.*;
 import org.json.JSONObject;
@@ -11,7 +12,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Base64;
 
 public class AdminActivity extends Activity {
     private EditText newEmail, newPassword;
@@ -70,13 +70,12 @@ public class AdminActivity extends Activity {
                 JSONObject res = new JSONObject(sb.toString());
 
                 runOnUiThread(() -> {
-                    if (res.getString("status").equals("ok")) {
-                        statusText.setText("✅ " + res.getString("message"));
-                        // Reset form
+                    if (res.optString("status").equals("ok")) {
+                        statusText.setText("✅ " + res.optString("message"));
                         newEmail.setText("");
                         newPassword.setText("");
                     } else {
-                        statusText.setText("❌ " + res.getString("message"));
+                        statusText.setText("❌ " + res.optString("message", "Gagal"));
                     }
                 });
             } catch (Exception e) {

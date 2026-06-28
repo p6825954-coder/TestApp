@@ -15,7 +15,7 @@ import java.net.URL;
 
 public class LoginActivity extends Activity {
     private EditText emailInput, passwordInput;
-    private Button loginBtn, registerBtn;
+    private Button loginBtn;
     private TextView statusText;
     private static final String SERVER = "https://ghostspy.bruang.biz.id";
 
@@ -27,7 +27,6 @@ public class LoginActivity extends Activity {
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
         loginBtn = findViewById(R.id.loginBtn);
-        registerBtn = findViewById(R.id.registerBtn);
         statusText = findViewById(R.id.statusText);
 
         SharedPreferences prefs = getSharedPreferences("ghostspy", MODE_PRIVATE);
@@ -45,7 +44,6 @@ public class LoginActivity extends Activity {
         }
 
         loginBtn.setOnClickListener(v -> doLogin());
-        registerBtn.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
     }
 
     private void doLogin() {
@@ -82,7 +80,7 @@ public class LoginActivity extends Activity {
                 while ((line = br.readLine()) != null) sb.append(line);
                 JSONObject res = new JSONObject(sb.toString());
 
-                if (res.getString("status").equals("ok")) {
+                if (res.optString("status").equals("ok")) {
                     String role = res.optString("role", "user");
                     SharedPreferences prefs = getSharedPreferences("ghostspy", MODE_PRIVATE);
                     prefs.edit()
@@ -101,7 +99,7 @@ public class LoginActivity extends Activity {
                         finish();
                     });
                 } else {
-                    runOnUiThread(() -> statusText.setText("❌ " + res.getString("message")));
+                    runOnUiThread(() -> statusText.setText("❌ " + res.optString("message", "Login gagal")));
                 }
             } catch (Exception e) {
                 runOnUiThread(() -> statusText.setText("❌ Koneksi gagal"));
