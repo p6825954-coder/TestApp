@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@drawable/bg_gradient"
+    android:padding="16dp">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center_vertical" android:layout_marginBottom="16dp">
+        <Button android:text="←" android:onClick="goBack" android:background="@null"
+            android:textColor="#FFF" android:textSize="20sp"/>
+        <TextView android:id="@+id/profileDeviceInfo" android:text="..." android:textColor="#FFF"
+            android:layout_weight="1" android:gravity="center"/>
+        <TextView android:text="2" android:background="@drawable/btn_red"
+            android:paddingHorizontal="14dp" android:paddingVertical="6dp"
+            android:textColor="#FFF" android:textSize="12sp"/>
+    </LinearLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:background="@drawable/card_border"
+            android:padding="20dp">
+
+            <LinearLayout android:gravity="center_vertical" android:layout_marginBottom="8dp">
+                <View android:layout_width="10dp" android:layout_height="10dp"
+                    android:background="@drawable/green_dot" android:layout_marginEnd="8dp"/>
+                <TextView android:text="Profil Perangkat" android:textColor="#FFFFFF"
+                    android:textSize="18sp" android:textStyle="bold"/>
+            </LinearLayout>
+            <TextView android:text="REAL-TIME UPDATE ACTIVE" android:textColor="#FF1E5A"
+                android:textSize="11sp" android:layout_marginBottom="20dp"/>
+
+            <TextView android:text="MODEL" android:textColor="#9AA3B2" android:textSize="11sp"/>
+            <TextView android:id="@+id/profModel" android:text="?" android:textColor="#FFFFFF"
+                android:textSize="16sp" android:textStyle="bold" android:layout_marginBottom="12dp"/>
+
+            <TextView android:text="BATTERY LEVEL" android:textColor="#9AA3B2" android:textSize="11sp"/>
+            <TextView android:id="@+id/profBattery" android:text="?" android:textColor="#00E676"
+                android:textSize="16sp" android:textStyle="bold" android:layout_marginBottom="12dp"/>
+
+            <TextView android:text="NETWORK TYPE" android:textColor="#9AA3B2" android:textSize="11sp"/>
+            <TextView android:id="@+id/profNetwork" android:text="?" android:textColor="#FFC107"
+                android:textSize="14sp" android:layout_marginBottom="12dp"/>
+
+            <TextView android:text="SIM SLOT 1" android:textColor="#9AA3B2" android:textSize="11sp"/>
+            <TextView android:id="@+id/profSim1" android:text="?" android:textColor="#FFFFFF"
+                android:textSize="14sp" android:layout_marginBottom="12dp"/>
+
+            <TextView android:text="SIM SLOT 2" android:textColor="#9AA3B2" android:textSize="11sp"/>
+            <TextView android:id="@+id/profSim2" android:text="?" android:textColor="#9AA3B2"
+                android:textSize="14sp" android:layout_marginBottom="20dp"/>
+
+            <LinearLayout android:background="#1A3A1A" android:padding="16dp"
+                android:gravity="center_vertical">
+                <ImageView android:src="@android:drawable/ic_lock_idle_lock"
+                    android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="12dp"/>
+                <LinearLayout android:orientation="vertical" android:layout_weight="1">
+                    <TextView android:text="ANTI-UNINSTALL ACTIVE" android:textColor="#FFFFFF"
+                        android:textStyle="bold"/>
+                    <TextView android:text="PROTECTED (ON)" android:textColor="#00E676"
+                        android:textSize="14sp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

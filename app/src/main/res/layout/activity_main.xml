@@ -1,28 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#0B0E17"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@drawable/bg_gradient"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/statusText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="⏳ Menghubungkan..."
-        android:textColor="#FFFFFF"
-        android:textSize="14sp"
-        android:layout_marginBottom="16dp"/>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center_vertical" android:layout_marginBottom="16dp">
+        <TextView android:text="DEVICE MANAGER" android:textColor="#FFFFFF"
+            android:textSize="22sp" android:textStyle="bold" android:layout_weight="1"/>
+        <TextView android:text="2" android:background="@drawable/btn_red"
+            android:paddingHorizontal="14dp" android:paddingVertical="6dp"
+            android:textColor="#FFF" android:textSize="12sp"/>
+    </LinearLayout>
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:layout_marginBottom="16dp">
+        <TextView android:text="SEMUA" android:background="@drawable/btn_red"
+            android:paddingHorizontal="16dp" android:paddingVertical="6dp"
+            android:textColor="#FFF" android:layout_marginEnd="8dp"/>
+        <TextView android:text="ONLINE" android:background="@drawable/glass_card"
+            android:paddingHorizontal="16dp" android:paddingVertical="6dp"
+            android:textColor="#FFF" android:layout_marginEnd="8dp"/>
+        <TextView android:text="OFFLINE" android:background="@drawable/glass_card"
+            android:paddingHorizontal="16dp" android:paddingVertical="6dp"
+            android:textColor="#9AA3B2"/>
+    </LinearLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
         android:layout_weight="1">
-        <LinearLayout
-            android:id="@+id/deviceContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        <LinearLayout android:id="@+id/deviceContainer"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="vertical"/>
     </ScrollView>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+        android:background="@drawable/glass_card" android:gravity="center"
+        android:orientation="horizontal" android:layout_marginTop="8dp">
+        <TextView android:text="BERANDA" android:textColor="#2ED8FF"
+            android:layout_weight="1" android:gravity="center"/>
+        <TextView android:text="PROFIL" android:textColor="#9AA3B2"
+            android:layout_weight="1" android:gravity="center"/>
+    </LinearLayout>
 </LinearLayout>
