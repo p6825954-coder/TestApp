@@ -6,8 +6,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import java.net.URISyntaxException;
 
 public class MainActivity extends Activity {
+    private Socket socket;
+    private TextView statusText;
     private LinearLayout deviceContainer;
 
     @Override
@@ -15,10 +20,31 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        statusText = findViewById(R.id.statusText);
         deviceContainer = findViewById(R.id.deviceContainer);
-        TextView statusText = findViewById(R.id.statusText);
-        statusText.setText("🟢 UI Siap");
+        statusText.setText("⏳ Menghubungkan...");
 
+        // Inisialisasi socket dengan try-catch
+        try {
+            socket = IO.socket("https://ghostspy.bruang.biz.id");
+        } catch (URISyntaxException e) {
+            statusText.setText("❌ URL Error");
+            return;
+        }
+
+        // Event: terhubung
+        socket.on(Socket.EVENT_CONNECT, args -> {
+            runOnUiThread(() -> statusText.setText("🟢 ONLINE"));
+        });
+
+        // Event: gagal konek
+        socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
+            runOnUiThread(() -> statusText.setText("🔴 OFFLINE"));
+        });
+
+        socket.connect();
+
+        // Tampilkan 2 device dummy dulu
         addDeviceCard("REALME RMX3939 ANDROID 15", "192.168.1.5", true);
         addDeviceCard("REDMI 23053RN02A ANDROID 15", "10.0.0.12", false);
     }
@@ -29,7 +55,8 @@ public class MainActivity extends Activity {
         card.setBackgroundColor(0xFF1A1A2E);
         card.setPadding(20, 20, 20, 20);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
         lp.setMargins(0, 0, 0, 12);
         card.setLayoutParams(lp);
 
@@ -53,5 +80,11 @@ public class MainActivity extends Activity {
         });
 
         deviceContainer.addView(card);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (socket != null) socket.disconnect();
+        super.onDestroy();
     }
 }
