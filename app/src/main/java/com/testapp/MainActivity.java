@@ -58,22 +58,20 @@ public class MainActivity extends Activity {
                 runOnUiThread(() -> {
                     deviceContainer.removeAllViews();
                     for (String[] data : list) {
-                        // Card neon
-                        LinearLayout card = new LinearLayout(MainActivity.this);
-                        card.setOrientation(LinearLayout.VERTICAL);
-                        card.setBackground(getDrawable(R.drawable.neon_border));
-                        card.setPadding(24, 24, 24, 24);
+                        LinearLayout item = new LinearLayout(MainActivity.this);
+                        item.setOrientation(LinearLayout.VERTICAL);
+                        item.setBackgroundColor(0xFF1A1A2E);
+                        item.setPadding(20, 20, 20, 20);
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                                 LinearLayout.LayoutParams.MATCH_PARENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT);
                         lp.setMargins(0, 0, 0, 12);
-                        card.setLayoutParams(lp);
+                        item.setLayoutParams(lp);
 
                         TextView idView = new TextView(MainActivity.this);
                         idView.setText("🆔 " + data[0]);
                         idView.setTextColor(0xFFFF1E5A);
                         idView.setTextSize(16);
-                        idView.setTypeface(null, android.graphics.Typeface.BOLD);
 
                         TextView modelView = new TextView(MainActivity.this);
                         modelView.setText("📱 " + data[1] + " | " + data[2]);
@@ -85,20 +83,19 @@ public class MainActivity extends Activity {
                         ipView.setTextColor(0xFF9AA3B2);
                         ipView.setTextSize(12);
 
-                        card.addView(idView);
-                        card.addView(modelView);
-                        card.addView(ipView);
+                        item.addView(idView);
+                        item.addView(modelView);
+                        item.addView(ipView);
 
-                        card.setOnClickListener(v -> {
+                        item.setOnClickListener(v -> {
                             Intent i = new Intent(MainActivity.this, ControlActivity.class);
                             i.putExtra("deviceId", data[0]);
-                            i.putExtra("deviceIp", data[4]);
                             startActivity(i);
                         });
 
-                        deviceContainer.addView(card);
+                        deviceContainer.addView(item);
                     }
-                    statusText.setText("🟢 ONLINE | " + list.size());
+                    statusText.setText("🟢 ONLINE | " + list.size() + " devices");
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> statusText.setText("⚠️ Parse error"));
