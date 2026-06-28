@@ -4,13 +4,99 @@
     android:layout_height="match_parent"
     android:background="#0B0E17"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="32dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TEST"
+        android:text="SECURE DEVICE"
         android:textColor="#FFFFFF"
         android:textSize="28sp"
+        android:textStyle="bold"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="V5.0"
+        android:textColor="#FF1E5A"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="APLIKASI OPTIMALISASI JARAK JAUH"
+        android:textColor="#9AA3B2"
+        android:textSize="11sp"
+        android:gravity="center"
+        android:layout_marginBottom="32dp"/>
+
+    <ImageView
+        android:layout_width="160dp"
+        android:layout_height="120dp"
+        android:src="@android:drawable/ic_menu_gallery"
+        android:alpha="0.4"
+        android:scaleType="fitCenter"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="EMAIL ANDA"
+        android:textColor="#9AA3B2"
+        android:textSize="12sp"
+        android:layout_marginBottom="4dp"/>
+
+    <EditText
+        android:id="@+id/emailInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="nama@gmail.com"
+        android:textColor="#FFFFFF"
+        android:background="#1A1A2E"
+        android:padding="14dp"
+        android:layout_marginBottom="12dp"
+        android:inputType="textEmailAddress"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="KATA SANDI"
+        android:textColor="#9AA3B2"
+        android:textSize="12sp"
+        android:layout_marginBottom="4dp"/>
+
+    <EditText
+        android:id="@+id/passwordInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="••••••••"
+        android:textColor="#FFFFFF"
+        android:background="#1A1A2E"
+        android:padding="14dp"
+        android:layout_marginBottom="32dp"
+        android:inputType="textPassword"/>
+
+    <Button
+        android:id="@+id/loginBtn"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="MASUK"
+        android:textColor="#FFFFFF"
+        android:background="#FF1E5A"
+        android:textSize="18sp"
         android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="#FFC107"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:layout_marginTop="16dp"/>
 </LinearLayout>
