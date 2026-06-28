@@ -1,90 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0a0a0a"
-    android:padding="16dp">
+    android:background="#0B0E17">
 
-    <LinearLayout
-        android:id="@+id/controlContainer"
+    <com.testapp.MatrixRainView
+        android:id="@+id/matrixRain"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"/>
 
-        <!-- Header Perangkat -->
-        <TextView
-            android:id="@+id/deviceTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🎯 Perangkat: ..."
-            android:textColor="#00ff41"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
-        <!-- Profil Singkat -->
-        <TextView
-            android:id="@+id/profileInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Model: ... | Baterai: ...% | Jaringan: ..."
-            android:textColor="#aaaaaa"
-            android:textSize="13sp"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Grid Tombol Kontrol (2 kolom) -->
         <LinearLayout
-            android:id="@+id/buttonGrid"
+            android:id="@+id/controlContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical">
 
-        <!-- Live Screen Area -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🖥️ LIVE SCREEN"
-            android:textColor="#00ff41"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="8dp"/>
-        <ImageView
-            android:id="@+id/liveScreenView"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:scaleType="fitCenter"
-            android:background="#000000"/>
+            <!-- Device Status Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/glass_card"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginBottom="24dp">
+                <TextView
+                    android:id="@+id/deviceTitle"
+                    android:text="Unknown"
+                    android:textColor="#FF1E5A"
+                    android:textSize="22sp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/profileInfo"
+                    android:text="Loading..."
+                    android:textColor="#9AA3B2"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
 
-        <!-- Tombol Screen ON/OFF -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp">
-            <Button
-                android:text="Start Screen"
-                android:layout_weight="1"
-                android:onClick="startScreen"
-                android:backgroundTint="#222"/>
-            <Button
-                android:text="Stop Screen"
-                android:layout_weight="1"
-                android:onClick="stopScreen"
-                android:backgroundTint="#222"/>
+            <!-- Grid Kontrol 3 kolom -->
+            <LinearLayout
+                android:id="@+id/buttonGrid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+
+            <!-- Live Screen -->
+            <TextView
+                android:text="LIVE SCREEN"
+                android:textColor="#2ED8FF"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"/>
+            <ImageView
+                android:id="@+id/liveScreenView"
+                android:layout_width="match_parent"
+                android:layout_height="260dp"
+                android:background="@drawable/glass_card"
+                android:layout_marginTop="8dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+                <Button
+                    android:text="Start"
+                    android:background="@drawable/btn_gradient"
+                    android:textColor="#FFF"
+                    android:layout_weight="1"/>
+                <Button
+                    android:text="Stop"
+                    android:background="@drawable/btn_gradient"
+                    android:textColor="#FFF"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+            <!-- Output Data -->
+            <TextView
+                android:id="@+id/dataOutput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#00E676"
+                android:typeface="monospace"
+                android:background="@drawable/glass_card"
+                android:padding="12dp"
+                android:layout_marginTop="16dp"/>
         </LinearLayout>
-
-        <!-- Output Data (File, SMS, dll) -->
-        <TextView
-            android:id="@+id/dataOutput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textColor="#00ff41"
-            android:textSize="12sp"
-            android:typeface="monospace"
-            android:background="#111"
-            android:padding="8dp"
-            android:layout_marginTop="16dp"/>
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</FrameLayout>
