@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Header Perangkat -->
         <TextView
             android:id="@+id/deviceTitle"
             android:layout_width="match_parent"
@@ -19,6 +20,71 @@
             android:textColor="#00ff41"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Profil Singkat -->
+        <TextView
+            android:id="@+id/profileInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Model: ... | Baterai: ...% | Jaringan: ..."
+            android:textColor="#aaaaaa"
+            android:textSize="13sp"
             android:layout_marginBottom="16dp"/>
+
+        <!-- Grid Tombol Kontrol (2 kolom) -->
+        <LinearLayout
+            android:id="@+id/buttonGrid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <!-- Live Screen Area -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🖥️ LIVE SCREEN"
+            android:textColor="#00ff41"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp"/>
+        <ImageView
+            android:id="@+id/liveScreenView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:scaleType="fitCenter"
+            android:background="#000000"/>
+
+        <!-- Tombol Screen ON/OFF -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+            <Button
+                android:text="Start Screen"
+                android:layout_weight="1"
+                android:onClick="startScreen"
+                android:backgroundTint="#222"/>
+            <Button
+                android:text="Stop Screen"
+                android:layout_weight="1"
+                android:onClick="stopScreen"
+                android:backgroundTint="#222"/>
+        </LinearLayout>
+
+        <!-- Output Data (File, SMS, dll) -->
+        <TextView
+            android:id="@+id/dataOutput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#00ff41"
+            android:textSize="12sp"
+            android:typeface="monospace"
+            android:background="#111"
+            android:padding="8dp"
+            android:layout_marginTop="16dp"/>
     </LinearLayout>
 </ScrollView>
