@@ -1,38 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:background="#0B0E17"
-    android:padding="32dp" android:gravity="center">
-
-    <TextView android:text="SECURE DEVICE" android:textColor="#FFFFFF"
-        android:textSize="32sp" android:textStyle="bold" android:gravity="center"/>
-    <TextView android:text="V5.0" android:textColor="#FF1E5A"
-        android:textSize="18sp" android:gravity="center" android:layout_marginBottom="8dp"/>
-    <TextView android:text="APLIKASI OPTIMALISASI JARAK JAUH" android:textColor="#9AA3B2"
-        android:textSize="11sp" android:gravity="center" android:layout_marginBottom="40dp"/>
-
-    <ImageView android:layout_width="200dp" android:layout_height="150dp"
-        android:src="@android:drawable/ic_menu_gallery" android:alpha="0.4"
-        android:scaleType="fitCenter" android:layout_marginBottom="40dp"/>
-
-    <TextView android:text="EMAIL ANDA" android:textColor="#9AA3B2"
-        android:textSize="12sp" android:layout_marginBottom="4dp"/>
-    <EditText android:id="@+id/emailInput" android:hint="nama@gmail.com"
-        android:textColor="#FFF" android:background="#1A1A2E" android:padding="14dp"
-        android:layout_marginBottom="16dp" android:inputType="textEmailAddress"/>
-
-    <TextView android:text="KATA SANDI" android:textColor="#9AA3B2"
-        android:textSize="12sp" android:layout_marginBottom="4dp"/>
-    <EditText android:id="@+id/passwordInput" android:hint="••••••••"
-        android:textColor="#FFF" android:background="#1A1A2E" android:padding="14dp"
-        android:layout_marginBottom="32dp" android:inputType="textPassword"/>
-
-    <Button android:id="@+id/loginBtn" android:text="MASUK"
-        android:textColor="#FFF" android:background="#FF1E5A"
-        android:layout_width="match_parent" android:layout_height="56dp"
-        android:textSize="18sp" android:textStyle="bold"/>
-
-    <TextView android:id="@+id/statusText" android:text=""
-        android:textColor="#FFC107" android:textSize="12sp"
-        android:gravity="center" android:layout_marginTop="16dp"/>
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0B0E17">
 </LinearLayout>
