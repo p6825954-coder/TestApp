@@ -7,7 +7,9 @@
     android:orientation="vertical"
     android:padding="32dp">
 
+    <!-- Judul dengan animasi alpha di Java -->
     <TextView
+        android:id="@+id/titleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="SECURE DEVICE"
@@ -16,15 +18,18 @@
         android:textStyle="bold"
         android:gravity="center"/>
 
+    <!-- V5.0 merah tebal -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="V5.0"
         android:textColor="#FF1E5A"
-        android:textSize="18sp"
+        android:textSize="16sp"
+        android:textStyle="bold"
         android:gravity="center"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="4dp"/>
 
+    <!-- Subjudul -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,16 +37,17 @@
         android:textColor="#9AA3B2"
         android:textSize="11sp"
         android:gravity="center"
-        android:layout_marginBottom="32dp"/>
+        android:layout_marginBottom="12dp"/>
 
-    <ImageView
-        android:layout_width="160dp"
-        android:layout_height="120dp"
-        android:src="@android:drawable/ic_menu_gallery"
-        android:alpha="0.4"
-        android:scaleType="fitCenter"
-        android:layout_marginBottom="24dp"/>
+    <!-- WebView untuk GIF dari URL -->
+    <WebView
+        android:id="@+id/gifWebView"
+        android:layout_width="200dp"
+        android:layout_height="150dp"
+        android:layout_marginBottom="16dp"
+        android:background="#00000000"/>
 
+    <!-- Email -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -61,6 +67,7 @@
         android:layout_marginBottom="12dp"
         android:inputType="textEmailAddress"/>
 
+    <!-- Password -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -80,6 +87,7 @@
         android:layout_marginBottom="32dp"
         android:inputType="textPassword"/>
 
+    <!-- Tombol MASUK dengan animasi scale -->
     <Button
         android:id="@+id/loginBtn"
         android:layout_width="match_parent"
@@ -90,6 +98,7 @@
         android:textSize="18sp"
         android:textStyle="bold"/>
 
+    <!-- Status -->
     <TextView
         android:id="@+id/statusText"
         android:layout_width="wrap_content"
