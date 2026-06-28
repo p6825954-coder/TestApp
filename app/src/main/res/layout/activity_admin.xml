@@ -5,7 +5,10 @@
     android:padding="32dp" android:gravity="center">
 
     <TextView android:text="🔑 ADMIN PANEL" android:textColor="#FF1E5A"
-        android:textSize="24sp" android:textStyle="bold" android:layout_marginBottom="32dp"/>
+        android:textSize="24sp" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+
+    <TextView android:text="Buat Akun Member Baru" android:textColor="#9AA3B2"
+        android:textSize="13sp" android:layout_marginBottom="24dp"/>
 
     <EditText android:id="@+id/newEmail" android:hint="Email member baru"
         android:textColor="#FFF" android:background="#1A1A2E" android:padding="14dp"
@@ -19,6 +22,11 @@
         android:textColor="#FFF" android:background="#FF1E5A"
         android:layout_width="match_parent" android:layout_height="56dp"
         android:textSize="18sp" android:textStyle="bold"/>
+
+    <Button android:id="@+id/dashboardBtn" android:text="📊 DASHBOARD PERANGKAT"
+        android:textColor="#FF1E5A" android:background="@android:color/transparent"
+        android:layout_width="match_parent" android:layout_height="56dp"
+        android:textSize="16sp" android:layout_marginTop="16dp"/>
 
     <TextView android:id="@+id/adminStatus" android:text=""
         android:textColor="#FFC107" android:textSize="12sp"

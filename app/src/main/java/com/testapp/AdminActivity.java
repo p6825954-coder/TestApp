@@ -1,6 +1,7 @@
 package com.testapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
@@ -14,7 +15,7 @@ import java.util.Base64;
 
 public class AdminActivity extends Activity {
     private EditText newEmail, newPassword;
-    private Button createBtn;
+    private Button createBtn, dashboardBtn;
     private TextView statusText;
     private static final String SERVER = "https://ghostspy.bruang.biz.id";
     private static final String ADMIN_AUTH = "admin@ghostspy.com:admin123";
@@ -27,9 +28,13 @@ public class AdminActivity extends Activity {
         newEmail = findViewById(R.id.newEmail);
         newPassword = findViewById(R.id.newPassword);
         createBtn = findViewById(R.id.createBtn);
+        dashboardBtn = findViewById(R.id.dashboardBtn);
         statusText = findViewById(R.id.adminStatus);
 
         createBtn.setOnClickListener(v -> createUser());
+        dashboardBtn.setOnClickListener(v -> {
+            startActivity(new Intent(this, MainActivity.class));
+        });
     }
 
     private void createUser() {
@@ -67,6 +72,9 @@ public class AdminActivity extends Activity {
                 runOnUiThread(() -> {
                     if (res.getString("status").equals("ok")) {
                         statusText.setText("✅ " + res.getString("message"));
+                        // Reset form
+                        newEmail.setText("");
+                        newPassword.setText("");
                     } else {
                         statusText.setText("❌ " + res.getString("message"));
                     }
