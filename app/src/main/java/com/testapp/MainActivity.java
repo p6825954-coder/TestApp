@@ -9,8 +9,10 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TextView tv = new TextView(this);
-        tv.setText("Hello World");
+        tv.setText("Dashboard Siap");
         tv.setTextSize(24);
+        tv.setTextColor(0xFFFFFFFF);
+        tv.setBackgroundColor(0xFF0B0E17);
         setContentView(tv);
     }
 }
