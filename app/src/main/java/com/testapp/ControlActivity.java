@@ -10,7 +10,6 @@ public class ControlActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         String deviceId = getIntent().getStringExtra("deviceId");
 
         LinearLayout layout = new LinearLayout(this);
@@ -19,7 +18,9 @@ public class ControlActivity extends Activity {
         layout.setPadding(32, 32, 32, 32);
 
         Button btn = new Button(this);
-        btn.setText("📳 Test Vibrate (UI only)");
+        btn.setText("📳 Test (UI only)");
+        btn.setTextColor(0xFFFFFFFF);
+        btn.setBackgroundColor(0xFF1A1A2E);
         btn.setOnClickListener(v -> Toast.makeText(this, "Device: " + deviceId, Toast.LENGTH_SHORT).show());
         layout.addView(btn);
 
