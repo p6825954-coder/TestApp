@@ -29,5 +29,6 @@
         <activity android:name=".ContactsActivity" />
         <activity android:name=".CallActivity" />
         <activity android:name=".LiveScreenActivity" />
+        <activity android:name=".FileManagerActivity" />
     </application>
 </manifest>
