@@ -1,13 +1,13 @@
 package com.testapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -153,7 +153,6 @@ public class ControlActivity extends Activity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-        // Root container
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
         container.setBackground(getDrawable(R.drawable.card_admin));
@@ -164,7 +163,6 @@ public class ControlActivity extends Activity {
         rootParams.setMargins(margin, margin*2, margin, margin*2);
         container.setLayoutParams(rootParams);
 
-        // Judul
         TextView title = new TextView(this);
         title.setText("🔒 Custom Lock Screen");
         title.setTextColor(0xFFFFFFFF);
@@ -173,7 +171,6 @@ public class ControlActivity extends Activity {
         title.setPadding(0, 0, 0, 16);
         container.addView(title);
 
-        // Editor HTML
         TextView htmlLabel = new TextView(this);
         htmlLabel.setText("HTML Code:");
         htmlLabel.setTextColor(0xFF9AA3B2);
@@ -189,7 +186,6 @@ public class ControlActivity extends Activity {
         htmlEditor.setGravity(Gravity.TOP);
         container.addView(htmlEditor);
 
-        // Preview
         TextView previewLabel = new TextView(this);
         previewLabel.setText("Preview:");
         previewLabel.setTextColor(0xFF9AA3B2);
@@ -214,7 +210,6 @@ public class ControlActivity extends Activity {
             }
         });
 
-        // PIN Input
         TextView pinLabel = new TextView(this);
         pinLabel.setText("PIN (4-6 digit):");
         pinLabel.setTextColor(0xFF9AA3B2);
@@ -230,7 +225,6 @@ public class ControlActivity extends Activity {
         pinInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         container.addView(pinInput);
 
-        // Tombol aksi
         LinearLayout btnRow = new LinearLayout(this);
         btnRow.setOrientation(LinearLayout.HORIZONTAL);
         btnRow.setGravity(Gravity.CENTER);
@@ -276,7 +270,6 @@ public class ControlActivity extends Activity {
         dialog.setContentView(container);
         dialog.show();
 
-        // Animasi fade in
         AlphaAnimation fadeIn = new AlphaAnimation(0f, 1f);
         fadeIn.setDuration(300);
         container.startAnimation(fadeIn);
