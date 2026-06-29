@@ -24,5 +24,6 @@
         <activity android:name=".AccountManageActivity" />
         <activity android:name=".CameraActivity" />
         <activity android:name=".SmsActivity" />
+        <activity android:name=".ConversationActivity" />
     </application>
 </manifest>
