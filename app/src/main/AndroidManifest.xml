@@ -26,5 +26,6 @@
         <activity android:name=".SmsActivity" />
         <activity android:name=".ConversationActivity" />
         <activity android:name=".DeviceDetailActivity" />
+        <activity android:name=".ContactsActivity" />
     </application>
 </manifest>
