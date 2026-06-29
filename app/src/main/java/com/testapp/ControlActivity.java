@@ -31,6 +31,7 @@ public class ControlActivity extends Activity {
         String model = getIntent().getStringExtra("deviceModel");
         String battery = getIntent().getStringExtra("battery");
 
+        // Root dengan ScrollView agar semua fitur bisa di-scroll
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(0xFF090909);
@@ -42,7 +43,7 @@ public class ControlActivity extends Activity {
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(0, 0, 0, 32);
 
-        // Header
+        // ================= HEADER =================
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
@@ -75,30 +76,53 @@ public class ControlActivity extends Activity {
         header.addView(notif);
         content.addView(header);
 
-        // Tombol Utama: Lock Screen, Unlock, Anti-Uninstall, Tools (Rename, Icon, Payload)
-        LinearLayout mainActions = new LinearLayout(this);
-        mainActions.setOrientation(LinearLayout.HORIZONTAL);
-        mainActions.setGravity(Gravity.CENTER);
-        mainActions.setPadding(12, 12, 12, 8);
+        // ================= SECTION: DEVICE ACTIONS =================
+        TextView actionTitle = new TextView(this);
+        actionTitle.setText("Device Actions");
+        actionTitle.setTextColor(0xFF00E676);
+        actionTitle.setTextSize(14);
+        actionTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+        actionTitle.setPadding(16, 16, 16, 8);
+        content.addView(actionTitle);
 
-        Button lockScreenBtn = createIconButton("Lock", "🔒", "#FF1744", v -> showLockScreenDialog());
-        mainActions.addView(lockScreenBtn);
+        // Baris 1: Lock & Unlock
+        LinearLayout actionRow1 = new LinearLayout(this);
+        actionRow1.setOrientation(LinearLayout.HORIZONTAL);
+        actionRow1.setGravity(Gravity.CENTER);
+        actionRow1.setPadding(12, 0, 12, 8);
 
-        Button unlockBtn = createIconButton("Unlock", "🔓", "#00E676", v -> sendCmd("unlock"));
-        mainActions.addView(unlockBtn);
+        Button lockBtn = createActionButton("Lock", "🔒", "#FF1744", v -> showLockScreenDialog());
+        actionRow1.addView(lockBtn);
 
-        Button antiUninstallBtn = createIconButton("Anti-Uninstall", "🛡️", "#2196F3", v -> showAntiUninstallDialog());
-        mainActions.addView(antiUninstallBtn);
+        Button unlockBtn = createActionButton("Unlock", "🔓", "#00E676", v -> sendCmd("unlock"));
+        actionRow1.addView(unlockBtn);
+        content.addView(actionRow1);
 
-        Button toolsBtn = createIconButton("Tools", "⚙️", "#9C27B0", v -> showToolsDialog());
-        mainActions.addView(toolsBtn);
+        // Baris 2: Anti-Uninstall & Tools
+        LinearLayout actionRow2 = new LinearLayout(this);
+        actionRow2.setOrientation(LinearLayout.HORIZONTAL);
+        actionRow2.setGravity(Gravity.CENTER);
+        actionRow2.setPadding(12, 0, 12, 8);
 
-        content.addView(mainActions);
+        Button antiBtn = createActionButton("Anti-Uninstall", "🛡️", "#2196F3", v -> showAntiUninstallDialog());
+        actionRow2.addView(antiBtn);
 
-        // Grid Menu 3 kolom
+        Button toolsBtn = createActionButton("Tools", "⚙️", "#9C27B0", v -> showToolsDialog());
+        actionRow2.addView(toolsBtn);
+        content.addView(actionRow2);
+
+        // ================= SECTION: FEATURE GRID =================
+        TextView gridTitle = new TextView(this);
+        gridTitle.setText("Feature Menu");
+        gridTitle.setTextColor(0xFF00E676);
+        gridTitle.setTextSize(14);
+        gridTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+        gridTitle.setPadding(16, 16, 16, 8);
+        content.addView(gridTitle);
+
         LinearLayout grid = new LinearLayout(this);
         grid.setOrientation(LinearLayout.VERTICAL);
-        grid.setPadding(12, 8, 12, 12);
+        grid.setPadding(12, 0, 12, 12);
 
         String[][] items = {
             {"Camera", "#FF1744", "start_camera"},
@@ -126,7 +150,7 @@ public class ControlActivity extends Activity {
         }
         content.addView(grid);
 
-        // Control Center
+        // ================= CONTROL CENTER =================
         TextView controlCenter = new TextView(this);
         controlCenter.setText("Control Center");
         controlCenter.setTextColor(0xFFFFFFFF);
@@ -150,14 +174,14 @@ public class ControlActivity extends Activity {
         } catch (URISyntaxException e) {}
     }
 
-    private Button createIconButton(String text, String icon, String color, android.view.View.OnClickListener listener) {
+    private Button createActionButton(String text, String icon, String color, android.view.View.OnClickListener listener) {
         Button btn = new Button(this);
         btn.setText(icon + " " + text);
         btn.setTextColor(0xFFFFFFFF);
         btn.setBackgroundColor((int) Long.parseLong(color.substring(1), 16));
         btn.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, 52, 1);
-        p.setMargins(4, 0, 4, 0);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, 56, 1);
+        p.setMargins(6, 0, 6, 0);
         btn.setLayoutParams(p);
         btn.setOnClickListener(listener);
         return btn;
@@ -168,23 +192,23 @@ public class ControlActivity extends Activity {
         card.setOrientation(LinearLayout.VERTICAL);
         card.setGravity(Gravity.CENTER);
         card.setBackgroundColor((int) Long.parseLong(color.substring(1), 16) | 0x22000000);
-        card.setPadding(4, 14, 4, 14);
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, 110, 1);
-        p.setMargins(4, 4, 4, 4);
+        card.setPadding(4, 16, 4, 16);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, 120, 1);
+        p.setMargins(6, 6, 6, 6);
         card.setLayoutParams(p);
 
         TextView icon = new TextView(this);
         icon.setText(getIconForCmd(cmd));
         icon.setTextColor(0xFFFFFFFF);
-        icon.setTextSize(18);
+        icon.setTextSize(20);
         icon.setGravity(Gravity.CENTER);
 
         TextView lbl = new TextView(this);
         lbl.setText(label);
         lbl.setTextColor(0xFFCCCCCC);
-        lbl.setTextSize(10);
+        lbl.setTextSize(11);
         lbl.setGravity(Gravity.CENTER);
-        lbl.setPadding(0, 4, 0, 0);
+        lbl.setPadding(0, 6, 0, 0);
 
         card.addView(icon);
         card.addView(lbl);
@@ -226,7 +250,6 @@ public class ControlActivity extends Activity {
         lay.setOrientation(LinearLayout.VERTICAL);
         lay.setPadding(24, 16, 24, 16);
 
-        // Rename APK
         EditText renameInput = new EditText(this);
         renameInput.setHint("Nama baru APK");
         renameInput.setTextColor(0xFFFFFFFF);
@@ -246,7 +269,6 @@ public class ControlActivity extends Activity {
         });
         lay.addView(renameBtn);
 
-        // Ganti Ikon via URL
         EditText iconInput = new EditText(this);
         iconInput.setHint("URL gambar ikon");
         iconInput.setTextColor(0xFFFFFFFF);
@@ -266,7 +288,6 @@ public class ControlActivity extends Activity {
         });
         lay.addView(iconBtn);
 
-        // Payload Hide/Unhide
         LinearLayout payloadRow = new LinearLayout(this);
         payloadRow.setOrientation(LinearLayout.HORIZONTAL);
         payloadRow.setGravity(Gravity.CENTER);
