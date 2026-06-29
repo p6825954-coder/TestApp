@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Base64;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.*;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -79,7 +80,7 @@ public class CameraActivity extends Activity {
         cameraView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         root.addView(cameraView);
 
-        // Panel info (semi transparan di atas preview) – kita letakkan di bawah preview
+        // Panel info
         infoPanel = new TextView(this);
         infoPanel.setText("Kamera: Depan | Res: 1080p | FPS: 30");
         infoPanel.setTextColor(0xFFFFFFFF);
