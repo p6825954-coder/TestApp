@@ -266,7 +266,6 @@ public class ControlActivity extends Activity {
         title.setPadding(0, 0, 0, 20);
         container.addView(title);
 
-        // Tombol ON / OFF besar
         LinearLayout switchRow = new LinearLayout(this);
         switchRow.setOrientation(LinearLayout.HORIZONTAL);
         switchRow.setGravity(Gravity.CENTER);
@@ -287,7 +286,7 @@ public class ControlActivity extends Activity {
         offBtn.setTextColor(0xFFFFFFFF);
         offBtn.setBackgroundColor(0xFFFF1744);
         offBtn.setOnClickListener(v -> {
-            sendCmd("flashlight_off");   // asumsikan RAT mendukung
+            sendCmd("flashlight_off");
             Toast.makeText(this, "Flashlight OFF", Toast.LENGTH_SHORT).show();
             dialog.dismiss();
         });
@@ -295,7 +294,6 @@ public class ControlActivity extends Activity {
 
         container.addView(switchRow);
 
-        // Spam Flashlight dengan durasi
         TextView spamLabel = new TextView(this);
         spamLabel.setText("Spam (ms):");
         spamLabel.setTextColor(0xFF9AA3B2);
@@ -331,6 +329,83 @@ public class ControlActivity extends Activity {
             }
         });
         container.addView(spamBtn);
+
+        Button tutupBtn = new Button(this);
+        tutupBtn.setText("Tutup");
+        tutupBtn.setTextColor(0xFF9AA3B2);
+        tutupBtn.setBackgroundColor(0x00000000);
+        tutupBtn.setOnClickListener(v -> dialog.dismiss());
+        container.addView(tutupBtn);
+
+        dialog.setContentView(container);
+        dialog.show();
+
+        AlphaAnimation fadeIn = new AlphaAnimation(0f, 1f);
+        fadeIn.setDuration(250);
+        container.startAnimation(fadeIn);
+    }
+
+    // ================= DIALOG VIBRATE PREMIUM =================
+    private void showVibrateDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setBackground(getDrawable(R.drawable.card_admin));
+        container.setPadding(24, 24, 24, 24);
+        int margin = 40;
+        LinearLayout.LayoutParams rootParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        rootParams.setMargins(margin, margin*2, margin, margin*2);
+        container.setLayoutParams(rootParams);
+
+        TextView title = new TextView(this);
+        title.setText("📳 Getaran");
+        title.setTextColor(0xFFFFFFFF);
+        title.setTextSize(20);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        title.setGravity(Gravity.CENTER);
+        title.setPadding(0, 0, 0, 20);
+        container.addView(title);
+
+        TextView label = new TextView(this);
+        label.setText("Durasi (ms):");
+        label.setTextColor(0xFF9AA3B2);
+        label.setTextSize(12);
+        label.setPadding(0, 0, 0, 4);
+        container.addView(label);
+
+        EditText durationInput = new EditText(this);
+        durationInput.setHint("contoh: 1000");
+        durationInput.setTextColor(0xFFFFFFFF);
+        durationInput.setBackgroundColor(0xFF252525);
+        durationInput.setPadding(16, 12, 16, 12);
+        durationInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        container.addView(durationInput);
+
+        Button getarkanBtn = new Button(this);
+        getarkanBtn.setText("⚡ Getarkan");
+        getarkanBtn.setTextColor(0xFFFFFFFF);
+        getarkanBtn.setBackgroundColor(0xFF9C27B0);
+        getarkanBtn.setOnClickListener(v -> {
+            String durStr = durationInput.getText().toString().trim();
+            if (!durStr.isEmpty()) {
+                try {
+                    int dur = Integer.parseInt(durStr);
+                    sendCmd("vibrate", new JSONObject().put("duration", dur));
+                    Toast.makeText(this, "Getaran " + dur + " ms", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                } catch (Exception e) {
+                    Toast.makeText(this, "Masukkan angka", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Isi durasi", Toast.LENGTH_SHORT).show();
+            }
+        });
+        container.addView(getarkanBtn);
 
         Button tutupBtn = new Button(this);
         tutupBtn.setText("Tutup");
@@ -564,8 +639,7 @@ public class ControlActivity extends Activity {
         b.setTitle("Control Center");
         LinearLayout lay = new LinearLayout(this);
         lay.setOrientation(LinearLayout.VERTICAL);
-        // Ganti flashlight biasa dengan dialog premium
-        String[] cmds = {"flashlight_premium", "vibrate", "lock", "unlock", "toast", "openurl", "wipe"};
+        String[] cmds = {"flashlight_premium", "vibrate_premium", "lock", "unlock", "toast", "openurl", "wipe"};
         for (String cmd : cmds) {
             Button btn = new Button(this);
             btn.setText(cmd);
@@ -573,6 +647,8 @@ public class ControlActivity extends Activity {
             btn.setBackgroundColor(0xFF171717);
             if (cmd.equals("flashlight_premium")) {
                 btn.setOnClickListener(v -> showFlashlightDialog());
+            } else if (cmd.equals("vibrate_premium")) {
+                btn.setOnClickListener(v -> showVibrateDialog());
             } else {
                 btn.setOnClickListener(v -> sendCmd(cmd));
             }
