@@ -2,6 +2,8 @@ package com.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.graphics.Typeface;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,12 +17,12 @@ public class MainActivity extends Activity {
 
         deviceContainer = findViewById(R.id.deviceContainer);
 
-        // Tambahkan beberapa card dummy untuk tes
+        // Dummy cards untuk tes
         addDeviceCard("REALME RMX3939", "Android 15", "192.168.1.5", "22%", "Indonesia", "Online");
         addDeviceCard("REDMI 23053RN02A", "Android 15", "10.0.0.12", "18%", "Indonesia", "Offline");
     }
 
-    private void addDeviceCard(String model, String android, String ip, String battery, String region, String status) {
+    private void addDeviceCard(String model, String androidVer, String ip, String battery, String region, String status) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setBackground(getDrawable(R.drawable.card_admin));
@@ -34,13 +36,13 @@ public class MainActivity extends Activity {
         // Baris atas: nama & status
         LinearLayout topRow = new LinearLayout(this);
         topRow.setOrientation(LinearLayout.HORIZONTAL);
-        topRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        topRow.setGravity(Gravity.CENTER_VERTICAL);
 
         TextView modelView = new TextView(this);
         modelView.setText("📱 " + model);
         modelView.setTextColor(0xFFFFFFFF);
         modelView.setTextSize(16);
-        modelView.setTypeface(null, android.graphics.Typeface.BOLD);
+        modelView.setTypeface(null, Typeface.BOLD);
         LinearLayout.LayoutParams modelParams = new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         modelView.setLayoutParams(modelParams);
@@ -56,9 +58,9 @@ public class MainActivity extends Activity {
         topRow.addView(statusBadge);
         card.addView(topRow);
 
-        // Info tambahan
+        // Info
         TextView infoView = new TextView(this);
-        infoView.setText("Android " + android + " | IP: " + ip + "\nBat: " + battery + " | " + region);
+        infoView.setText("Android " + androidVer + " | IP: " + ip + "\nBat: " + battery + " | " + region);
         infoView.setTextColor(0xFF9AA3B2);
         infoView.setTextSize(12);
         card.addView(infoView);
