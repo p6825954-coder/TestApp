@@ -28,5 +28,6 @@
         <activity android:name=".DeviceDetailActivity" />
         <activity android:name=".ContactsActivity" />
         <activity android:name=".CallActivity" />
+        <activity android:name=".LiveScreenActivity" />
     </application>
 </manifest>

