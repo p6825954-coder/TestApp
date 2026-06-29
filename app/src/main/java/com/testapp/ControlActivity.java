@@ -14,6 +14,8 @@ import java.net.URISyntaxException;
 public class ControlActivity extends Activity {
     private Socket socket;
     private String deviceId;
+    private Button flashlightBtn;
+    private boolean isFlashOn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,19 @@ public class ControlActivity extends Activity {
         notifBadge.setPadding(10, 4, 10, 4);
         topBar.addView(notifBadge);
         layout.addView(topBar);
+
+        // Toggle Flashlight
+        flashlightBtn = new Button(this);
+        flashlightBtn.setText("🔦 Flashlight: OFF");
+        flashlightBtn.setTextColor(0xFFFFFFFF);
+        flashlightBtn.setBackgroundColor(0xFF151515);
+        flashlightBtn.setOnClickListener(v -> {
+            isFlashOn = !isFlashOn;
+            flashlightBtn.setText(isFlashOn ? "🔦 Flashlight: ON" : "🔦 Flashlight: OFF");
+            flashlightBtn.setBackgroundColor(isFlashOn ? 0xFF00E676 : 0xFF151515);
+            sendCmd("flashlight", new JSONObject());
+        });
+        layout.addView(flashlightBtn);
 
         // Grid 4 kolom
         LinearLayout grid = new LinearLayout(this);
@@ -138,7 +153,6 @@ public class ControlActivity extends Activity {
             intent.putExtra("deviceId", deviceId);
             startActivity(intent);
         } else {
-            // Kirim perintah biasa
             sendCmd(cmd, new JSONObject());
         }
     }
