@@ -19,7 +19,8 @@ public class MainActivity extends Activity {
     private Socket socket;
     private TextView statusText;
     private LinearLayout deviceContainer;
-    private boolean useDummy = true;
+    private Handler handler = new Handler();
+    private boolean useDummy = false; // <<<< REAL MODE
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +76,7 @@ public class MainActivity extends Activity {
 
         // Debug info
         TextView debugView = new TextView(this);
-        debugView.setText("Status: Mode Dummy");
+        debugView.setText("Status: Real Mode");
         debugView.setTextColor(0xFF9AA3B2);
         debugView.setPadding(16, 8, 16, 8);
         root.addView(debugView);
@@ -204,7 +205,7 @@ public class MainActivity extends Activity {
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         modelView.setLayoutParams(modelParams);
 
-        boolean online = data[4].contains("Just");
+        boolean online = data[4].contains("Just") || data[4].contains("now");
         TextView statusBadge = new TextView(this);
         statusBadge.setText(online ? "ONLINE" : "OFFLINE");
         statusBadge.setTextColor(online ? 0xFF00E676 : 0xFF9AA3B2);
