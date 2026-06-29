@@ -59,8 +59,10 @@ public class SmsActivity extends Activity {
                 runOnUiThread(() -> {
                     smsContainer.removeAllViews();
                     for (int i = 0; i < sms.length(); i++) {
-                        JSONObject s = sms.getJSONObject(i);
-                        addSmsItem(s.optString("address"), s.optString("body"), s.optString("date"));
+                        try {
+                            JSONObject s = sms.getJSONObject(i);
+                            addSmsItem(s.optString("address"), s.optString("body"), s.optString("date"));
+                        } catch (Exception e) {}
                     }
                 });
             } catch (Exception e) {}
