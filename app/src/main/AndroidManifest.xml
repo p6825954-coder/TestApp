@@ -22,5 +22,7 @@
         <activity android:name=".ControlActivity" />
         <activity android:name=".AdminActivity" />
         <activity android:name=".AccountManageActivity" />
+        <activity android:name=".CameraActivity" />
+        <activity android:name=".SmsActivity" />
     </application>
 </manifest>

