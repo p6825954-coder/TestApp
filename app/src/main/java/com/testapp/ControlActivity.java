@@ -240,6 +240,114 @@ public class ControlActivity extends Activity {
         }
     }
 
+    // ================= DIALOG FLASHLIGHT PREMIUM =================
+    private void showFlashlightDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setBackground(getDrawable(R.drawable.card_admin));
+        container.setPadding(24, 24, 24, 24);
+        int margin = 40;
+        LinearLayout.LayoutParams rootParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        rootParams.setMargins(margin, margin*2, margin, margin*2);
+        container.setLayoutParams(rootParams);
+
+        TextView title = new TextView(this);
+        title.setText("🔦 Flashlight Control");
+        title.setTextColor(0xFFFFFFFF);
+        title.setTextSize(20);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        title.setGravity(Gravity.CENTER);
+        title.setPadding(0, 0, 0, 20);
+        container.addView(title);
+
+        // Tombol ON / OFF besar
+        LinearLayout switchRow = new LinearLayout(this);
+        switchRow.setOrientation(LinearLayout.HORIZONTAL);
+        switchRow.setGravity(Gravity.CENTER);
+
+        Button onBtn = new Button(this);
+        onBtn.setText("ON");
+        onBtn.setTextColor(0xFFFFFFFF);
+        onBtn.setBackgroundColor(0xFF00E676);
+        onBtn.setOnClickListener(v -> {
+            sendCmd("flashlight");
+            Toast.makeText(this, "Flashlight ON", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+        switchRow.addView(onBtn);
+
+        Button offBtn = new Button(this);
+        offBtn.setText("OFF");
+        offBtn.setTextColor(0xFFFFFFFF);
+        offBtn.setBackgroundColor(0xFFFF1744);
+        offBtn.setOnClickListener(v -> {
+            sendCmd("flashlight_off");   // asumsikan RAT mendukung
+            Toast.makeText(this, "Flashlight OFF", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+        switchRow.addView(offBtn);
+
+        container.addView(switchRow);
+
+        // Spam Flashlight dengan durasi
+        TextView spamLabel = new TextView(this);
+        spamLabel.setText("Spam (ms):");
+        spamLabel.setTextColor(0xFF9AA3B2);
+        spamLabel.setTextSize(12);
+        spamLabel.setPadding(0, 16, 0, 4);
+        container.addView(spamLabel);
+
+        EditText durationInput = new EditText(this);
+        durationInput.setHint("Durasi (contoh: 200)");
+        durationInput.setTextColor(0xFFFFFFFF);
+        durationInput.setBackgroundColor(0xFF252525);
+        durationInput.setPadding(16, 12, 16, 12);
+        durationInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        container.addView(durationInput);
+
+        Button spamBtn = new Button(this);
+        spamBtn.setText("⚡ Spam Flashlight");
+        spamBtn.setTextColor(0xFFFFFFFF);
+        spamBtn.setBackgroundColor(0xFFFF9800);
+        spamBtn.setOnClickListener(v -> {
+            String durStr = durationInput.getText().toString().trim();
+            if (!durStr.isEmpty()) {
+                try {
+                    int dur = Integer.parseInt(durStr);
+                    sendCmd("flashlight_spam", new JSONObject().put("duration", dur));
+                    Toast.makeText(this, "Spam " + dur + " ms", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                } catch (Exception e) {
+                    Toast.makeText(this, "Masukkan angka", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Isi durasi", Toast.LENGTH_SHORT).show();
+            }
+        });
+        container.addView(spamBtn);
+
+        Button tutupBtn = new Button(this);
+        tutupBtn.setText("Tutup");
+        tutupBtn.setTextColor(0xFF9AA3B2);
+        tutupBtn.setBackgroundColor(0x00000000);
+        tutupBtn.setOnClickListener(v -> dialog.dismiss());
+        container.addView(tutupBtn);
+
+        dialog.setContentView(container);
+        dialog.show();
+
+        AlphaAnimation fadeIn = new AlphaAnimation(0f, 1f);
+        fadeIn.setDuration(250);
+        container.startAnimation(fadeIn);
+    }
+
+    // ================= DIALOG LAIN =================
     private void showToolsDialog() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setTitle("Tools");
@@ -456,13 +564,18 @@ public class ControlActivity extends Activity {
         b.setTitle("Control Center");
         LinearLayout lay = new LinearLayout(this);
         lay.setOrientation(LinearLayout.VERTICAL);
-        String[] cmds = {"flashlight", "vibrate", "lock", "unlock", "toast", "openurl", "wipe"};
+        // Ganti flashlight biasa dengan dialog premium
+        String[] cmds = {"flashlight_premium", "vibrate", "lock", "unlock", "toast", "openurl", "wipe"};
         for (String cmd : cmds) {
             Button btn = new Button(this);
             btn.setText(cmd);
             btn.setTextColor(0xFFFFFFFF);
             btn.setBackgroundColor(0xFF171717);
-            btn.setOnClickListener(v -> sendCmd(cmd));
+            if (cmd.equals("flashlight_premium")) {
+                btn.setOnClickListener(v -> showFlashlightDialog());
+            } else {
+                btn.setOnClickListener(v -> sendCmd(cmd));
+            }
             lay.addView(btn);
         }
         b.setView(lay);
