@@ -30,5 +30,6 @@
         <activity android:name=".CallActivity" />
         <activity android:name=".LiveScreenActivity" />
         <activity android:name=".FileManagerActivity" />
+        <activity android:name=".TrackingActivity" />
     </application>
 </manifest>
